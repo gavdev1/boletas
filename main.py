@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 
 from core.config import settings
 from core.database import engine, Base
-from api.routers import notas
+from api.routers import notas, alumnos, materias, boletas
 
-# Crear tablas en la base de datos (Nota)
+# Crear tablas en la base de datos
 # Nota: En producción sería mejor usar Alembic para migraciones
 Base.metadata.create_all(bind=engine)
 
@@ -23,6 +23,9 @@ app = FastAPI(
 
 # Incluir routers
 app.include_router(notas.router, prefix="/notas", tags=["notas"])
+app.include_router(alumnos.router, prefix="/alumnos", tags=["alumnos"])
+app.include_router(materias.router, prefix="/materias", tags=["materias"])
+app.include_router(boletas.router, prefix="/boletas", tags=["boletas"])
 
 @app.get("/")
 def read_root():

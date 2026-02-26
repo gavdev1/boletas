@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 0.5cm;
+        }
+
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            font-size: 7pt;
+            color: #000;
+            line-height: 1.1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px;
+        }
+
+        td,
+        th {
+            border: 0.5px solid #000;
+            padding: 1px 3px;
+            vertical-align: middle;
+        }
+
+        .no-border {
+            border: none !important;
+        }
+
+        .label {
+            font-size: 5pt;
+            text-transform: uppercase;
+            color: #444;
+            display: block;
+        }
+
+        .value {
+            font-weight: bold;
+            font-size: 7pt;
+            display: block;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        /* Header specific */
+        .header-top td {
+            height: 40px;
+        }
+
+        .title-box {
+            font-weight: bold;
+            font-size: 8pt;
+            text-align: center;
+        }
+
+        /* Grades Table */
+        .grades-table th {
+            background-color: #e0e0e0;
+            font-size: 6pt;
+            height: 15px;
+        }
+
+        .small-col {
+            width: 15px;
+            font-size: 6pt;
+        }
+
+        .subject-name {
+            text-align: left;
+            width: 140px;
+            font-size: 6.5pt;
+            font-weight: bold;
+        }
+
+        /* Bottom section */
+        .bottom-container {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .situacion-table {
+            width: 70%;
+            float: left;
+        }
+
+        .info-boxes {
+            width: 28%;
+            float: right;
+        }
+
+        .box {
+            border: 0.5px solid #000;
+            margin-bottom: 3px;
+            padding: 2px;
+        }
+
+        .info-text {
+            font-size: 5pt;
+            line-height: 1.2;
+            text-align: justify;
+        }
+
+        .receipt-area {
+            border: 1px dashed #000;
+            margin-top: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TOP HEADER -->
+    <table>
+        <tr>
+            <td rowspan="2" style="width: 60px;" class="center">
+                <span class="label">ESCUDO</span>
+            </td>
+            <td class="title-box" style="width: 120px;">
+                REPORTE DE EVALUACIÓN
+            </td>
+            <td colspan="4" class="center">
+                <span class="label">ESTUDIANTE</span>
+                <span class="value">{{ boleta.alumno.apellido }}, {{ boleta.alumno.nombre }}</span>
+            </td>
+            <td class="center" style="width: 60px;">
+                <span class="label">CÓDIGO</span>
+                <span class="value">{{ boleta.alumno.codigo or '' }}</span>
+            </td>
+            <td class="center" style="width: 20px;">
+                <span class="label">LISTA</span>
+                <span class="value">{{ boleta.numero_lista or '' }}</span>
+            </td>
+            <td class="center" style="width: 25px;">
+                <span class="label">TESTU.</span>
+            </td>
+            <td class="center" style="width: 25px;">
+                <span class="label">NIVEL</span>
+            </td>
+            <td class="center" style="width: 25px;">
+                <span class="label">CURSO</span>
+                <span class="value">{{ boleta.grado }}</span>
+            </td>
+            <td class="center" style="width: 25px;">
+                <span class="label">SEC.</span>
+                <span class="value">{{ boleta.seccion }}</span>
+            </td>
+            <td rowspan="4" style="width: 60px;" class="center">
+                <span class="label">FOTO</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="label">CÉDULA DE IDENTIDAD</span>
+                <span class="value">{{ boleta.alumno.cedula }}</span>
+            </td>
+            <td colspan="2">
+                <span class="label">FECHA NACIMIENTO</span>
+                <span class="value">{{ boleta.alumno.fecha_nacimiento or '' }}</span>
+            </td>
+            <td colspan="2">
+                <span class="label">LOC. NACIMIENTO</span>
+                <span class="value">{{ boleta.alumno.lugar_nacimiento or '' }}</span>
+            </td>
+            <td colspan="5">
+                <span class="label">ESTADO DE NACIMIENTO</span>
+                <span class="value">{{ boleta.alumno.estado_nacimiento or '' }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <span class="label">NOMBRE Y DIRECCIÓN DEL PLANTEL</span>
+                <span class="value">{{ boleta.nombre_plantel }}</span>
+                <span class="value" style="font-weight: normal; font-size: 6pt;">{{ boleta.direccion_plantel }}</span>
+            </td>
+            <td colspan="4">
+                <span class="label">NOMBRE Y DIRECCIÓN DEL PADRE O REPRESENTANTE</span>
+                <span class="value">{{ boleta.alumno.nombre_representante }}</span>
+            </td>
+            <td colspan="2" class="center">
+                <span class="label">AÑO ESCOLAR</span>
+                <span class="value">{{ boleta.anio_escolar }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <!-- MAIN GRADES TABLE -->
+    <table class="grades-table">
+        <thead>
+            <tr>
+                <th rowspan="3" class="subject-name">RESULTADOS DE LA EVALUACIÓN<br>AREAS O MATERIAS</th>
+                <th colspan="18">HISTORIA DEL ESTUDIANTE DURANTE EL AÑO ESCOLAR</th>
+            </tr>
+            <tr>
+                <th colspan="5">LAPSO 1</th>
+                <th colspan="5">LAPSO 2</th>
+                <th colspan="5">LAPSO 3</th>
+                <th rowspan="2" class="small-col">FINAL</th>
+                <th rowspan="2" class="small-col">REVISIÓN</th>
+                <th rowspan="2" class="small-col">ALL IN REG</th>
+            </tr>
+            <tr>
+                <th class="small-col">PARC 1</th>
+                <th class="small-col">PARC 2</th>
+                <th class="small-col">ACUM.</th>
+                <th class="small-col">PBA LP</th>
+                <th class="small-col">DEF LP</th>
+                <th class="small-col">PARC 1</th>
+                <th class="small-col">PARC 2</th>
+                <th class="small-col">ACUM.</th>
+                <th class="small-col">PBA LP</th>
+                <th class="small-col">DEF LP</th>
+                <th class="small-col">PARC 1</th>
+                <th class="small-col">PARC 2</th>
+                <th class="small-col">ACUM.</th>
+                <th class="small-col">PBA LP</th>
+                <th class="small-col">DEF LP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cal in boleta.calificaciones %}
+            <tr>
+                <td class="subject-name">{{ cal.materia.nombre }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="value center">{{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if
+                    cal.literal and not cal.materia.es_numerica else '') }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="value center">{{ cal.lapso_2_def if cal.lapso_2_def is not none else (cal.literal if
+                    cal.literal and not cal.materia.es_numerica else '') }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="value center">{{ cal.lapso_3_def if cal.lapso_3_def is not none else (cal.literal if
+                    cal.literal and not cal.materia.es_numerica else '') }}</td>
+                <td class="value center">{{ cal.def_final if cal.def_final is not none else '' }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+            <!-- FILA DE PROMEDIOS -->
+            <tr>
+                <td class="subject-name">MEDIAS GLOBALES</td>
+                <td colspan="4"></td>
+                <td class="value center">{{ boleta.medias_globales or '' }}</td>
+                <td colspan="4"></td>
+                <td class="value center"></td>
+                <td colspan="4"></td>
+                <td class="value center"></td>
+                <td colspan="3"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- BOTTOM SECTION -->
+    <div class="bottom-container">
+        <!-- SITUACION IZQUIERDA -->
+        <div style="width: 65%; float: left;">
+            <p class="center" style="font-weight: bold; margin: 2px 0;">SITUACIÓN DEL ESTUDIANTE CON RESPECTO AL
+                PROMEDIO DE LA SECCIÓN</p>
+            <table class="grades-table">
+                <thead>
+                    <tr>
+                        <th class="subject-name">ÁREAS O MATERIAS</th>
+                        <th class="small-col">NOTA</th>
+                        <th class="small-col">PROM.</th>
+                        <th class="small-col">MUY BAJO</th>
+                        <th class="small-col">BAJO</th>
+                        <th class="small-col">MEDIO BAJO</th>
+                        <th class="small-col">MEDIO ALTO</th>
+                        <th class="small-col">ALTO</th>
+                        <th class="small-col">MUY ALTO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in boleta.calificaciones %}
+                    <tr>
+                        <td class="subject-name">{{ cal.materia.nombre }}</td>
+                        <td class="center">{{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if not
+                            cal.materia.es_numerica else '') }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="subject-name">SITUACIÓN GENERAL DEL ESTUDIANTE</td>
+                        <td colspan="8"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table>
+                <tr>
+                    <td style="width: 50%; height: 40px;">
+                        <span class="label">PROFESOR</span>
+                        <span class="value">{{ boleta.profesor or '' }}</span>
+                    </td>
+                    <td style="width: 50%;">
+                        <span class="label">OBSERVACIONES</span>
+                        <span class="value" style="font-weight: normal;">{{ boleta.observaciones or '' }}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- INFO DERECHA -->
+        <div style="width: 32%; float: right;">
+            <div class="box center">
+                <span class="label">TIPO EVALUACIÓN</span>
+                <span class="value">{{ boleta.tipo_evaluacion }}</span>
+            </div>
+            <div class="box center">
+                <span class="label">MATRÍCULA</span>
+                <span class="value">{{ boleta.id }}</span> <!-- Usando ID como matrícula temporal -->
+            </div>
+            <div class="box center" style="height: 50px;">
+                <span class="label">FIRMA DEL DIRECTOR O REPRESENTANTE DEL CONSEJO DOCENTE</span>
+            </div>
+
+            <div class="info-text">
+                La información de este apartado responde exclusivamente a la evaluación parcial o prueba de lapso
+                realizada en esta fecha.<br>
+                Las notas numéricas corresponden al estudiante (1a columna) y el promedio de la clase (2a columna) por
+                asignatura.<br>
+                Las medias globales contemplan el conjunto de asignaturas.<br>
+                Las gráficas sitúan al estudiante en relación a la clase por materias y globalmente.<br>
+                Los niveles de las gráficas indican si el estudiante es inferior, igual o superior a la media de la
+                clase...
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <!-- RECEIPT AREA -->
+    <div class="receipt-area">
+        <span class="label" style="font-weight: bold;">JUSTIFICANTE DE LA RECEPCIÓN DE LA BOLETA (ESTUDIANTE)</span>
+        <table>
+            <tr>
+                <td class="no-border">
+                    <span class="label">Alumno(a):</span>
+                    <span class="value">{{ boleta.alumno.apellido }}, {{ boleta.alumno.nombre }}</span>
+                </td>
+                <td class="no-border">
+                    <span class="label">C.I.:</span>
+                    <span class="value">{{ boleta.alumno.cedula }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border">
+                    <span class="label">Curso:</span>
+                    <span class="value">{{ boleta.grado }}{{ boleta.seccion }}</span>
+                </td>
+                <td class="no-border">
+                    <span class="label">Número de Lista:</span>
+                    <span class="value">{{ boleta.numero_lista }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border" colspan="2">
+                    <span class="label">Representante:</span>
+                    <span class="value">{{ boleta.alumno.nombre_representante }}</span>
+                </td>
+            </tr>
+        </table>
+        <table style="margin-top: 5px;">
+            <tr>
+                <td style="height: 30px; border: none; border-bottom: 0.5px solid #000;">
+                    <span class="label">FECHA</span>
+                </td>
+                <td style="border: none; border-bottom: 0.5px solid #000;">
+                    <span class="label">FIRMA DEL REPRESENTANTE</span>
+                </td>
+            </tr>
+        </table>
+        <p class="center" style="margin-top: 2px;">
+            <span class="label">TIPO DE EVALUACIÓN</span>
+            <span class="value">{{ boleta.tipo_evaluacion }}</span>
+        </p>
+    </div>
+</body>
+
+</html>

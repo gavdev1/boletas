@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List, Optional
 from persistencia.models import Nota
-from domain.schemas import NotaCreate, NotaUpdate
+from domain.schemas.nota import NotaCreate, NotaUpdate
+
 
 class NotaRepository:
     def __init__(self, session: Session):
@@ -31,7 +32,7 @@ class NotaRepository:
         db_nota = self.get_by_id(nota_id)
         if not db_nota:
             return None
-        
+
         update_data = nota_in.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_nota, key, value)
@@ -44,7 +45,7 @@ class NotaRepository:
         db_nota = self.get_by_id(nota_id)
         if not db_nota:
             return False
-            
+
         self.session.delete(db_nota)
         self.session.commit()
         return True

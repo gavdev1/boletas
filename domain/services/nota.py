@@ -1,6 +1,7 @@
 from typing import List, Optional
-from domain.schemas import NotaCreate, NotaUpdate, NotaResponse
-from persistencia.repository import NotaRepository
+from domain.schemas.nota import NotaCreate, NotaUpdate, NotaResponse
+from persistencia.repositories.nota import NotaRepository
+
 
 class NotaService:
     def __init__(self, repository: NotaRepository):
