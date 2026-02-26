@@ -8,7 +8,15 @@ from domain.schemas.boleta import BoletaResponse
 class PDFService:
     def __init__(self):
         # Configurar Jinja2 para cargar plantillas desde domain/templates
-        template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+        # Support PyInstaller bundled assets
+        import sys
+        if getattr(sys, 'frozen', False):
+            # If the app is frozen, the templates are in the same directory as the executable or in _MEIPASS
+            base_path = sys._MEIPASS
+            template_dir = os.path.join(base_path, "domain", "templates")
+        else:
+            template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+            
         self.jinja_env = Environment(loader=FileSystemLoader(template_dir))
 
     def generar_boleta_pdf(self, boleta: BoletaResponse) -> BytesIO:
