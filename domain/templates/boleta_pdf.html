@@ -1,337 +1,341 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <style>
-        @page {
-            size: letter;
-            margin: 0.3cm;
+        @page { 
+            size: letter; 
+            margin: 0.5cm 0.4cm; 
         }
-
-        body {
-            font-family: "Helvetica", sans-serif;
-            font-size: 6.5pt;
-            color: #000;
-            line-height: 1;
+        body { 
+            font-family: "Helvetica", "Arial", sans-serif; 
+            font-size: 5pt; 
+            line-height: 1.0;
+            margin: 0;
+            padding: 0;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
         }
-
-        td,
-        th {
-            border: 0.3pt solid #000;
-            padding: 0.5pt 1pt;
+        td, th { 
+            border: 0.5pt solid #000; 
+            padding: 0.5pt 1pt; 
             vertical-align: middle;
         }
-
-        .center {
+        th {
+            font-size: 3.5pt;
+            font-weight: bold;
+        }
+        .nb { border: none !important; }
+        .b { font-weight: bold; }
+        .c { text-align: center; }
+        .r { text-align: right; }
+        .bg { background-color: #e8e8e8; }
+        .lbl { font-size: 3pt; color: #555; display: block; text-transform: uppercase; line-height: 1.0; margin-bottom: 0pt; }
+        .v { font-size: 5.5pt; font-weight: bold; display: block; line-height: 1.1; }
+        .cut { border-top: 0.5pt dashed #000; margin-top: 5pt; padding-top: 3pt; }
+        .gc { 
+            font-size: 4.5pt; 
+            text-align: center; 
+            padding: 2.5pt 0pt !important;
+            overflow: hidden;
+        }
+        .mc {
+            font-size: 4.5pt;
+            padding: 2.5pt 1pt !important;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sh {
+            font-size: 2.5pt;
+            padding: 1pt 0pt !important;
             text-align: center;
-        }
-
-        .bg-gray {
-            background-color: #f0f0f0;
-        }
-
-        .label {
-            font-size: 4.5pt;
-            text-transform: uppercase;
-            color: #444;
-            display: block;
-        }
-
-        .value {
-            font-weight: bold;
-            font-size: 7pt;
-        }
-
-        /* Specific widths to avoid squashing */
-        .w-escudo {
-            width: 50pt;
-        }
-
-        .w-foto {
-            width: 50pt;
-        }
-
-        .w-subject {
-            width: 140pt;
-        }
-
-        .w-grade {
-            width: 15pt;
-        }
-
-        .w-meta {
-            width: 25pt;
-        }
-
-        .header-cell {
-            height: 22pt;
-        }
-
-        .tiny-text {
-            font-size: 4.5pt;
-            font-weight: normal;
-        }
-
-        .lapso-title {
-            font-size: 5pt;
-            font-weight: bold;
-            background-color: #eee;
+            overflow: hidden;
         }
     </style>
 </head>
-
 <body>
-    <!-- HEADER -->
-    <table class="header-table">
+    {% set eval_type = boleta.tipo_evaluacion %}
+
+    <!-- ========== UNIFIED HEADER + PLANTEL ========== -->
+    <table style="margin-bottom: 2pt; table-layout: fixed; width: 100%;">
+        <!-- Row 1 -->
         <tr>
-            <td rowspan="2" class="w-escudo center">ESCUDO</td>
-            <td class="center" style="width: 120pt;">
-                <span class="value" style="font-size: 8pt;">REPORTE DE EVALUACIÓN</span>
+            <td rowspan="4" style="width: 14%; padding: 2pt; text-align: center;" valign="top">
+                <div class="b" style="font-size: 7.5pt; line-height: 1.1; margin-bottom: 3pt;">BOLETA DE<br>EVALUACIÓN</div>
+                <div style="font-size: 5pt; color: #666; margin-bottom: 2pt;">ESCUDO</div>
+                <!-- Placeholder for actual shield image. The cell height is driven by the adjacent columns now. -->
+                <div style="height: 45pt;"></div>
             </td>
-            <td colspan="4" class="center">
-                <span class="label">ESTUDIANTE</span>
-                <span class="value">{{ boleta.alumno.apellido }}, {{ boleta.alumno.nombre }}</span>
+            <td colspan="2" style="width: 35%; padding: 2.5pt 2pt;" valign="top">
+                <div class="lbl">ESTUDIANTE</div>
+                <div class="v">{{ boleta.alumno.apellido }}, {{ boleta.alumno.nombre }}</div>
             </td>
-            <td class="center" style="width: 60pt;">
-                <span class="label">CÓDIGO</span>
-                <span class="value">{{ boleta.alumno.codigo or '' }}</span>
-            </td>
-            <td class="center" style="width: 20pt;">
-                <span class="label">LISTA</span>
-                <span class="value">{{ boleta.numero_lista or '' }}</span>
-            </td>
-            <td class="center" style="width: 20pt;"><span class="label">G</span><span class="value">{{ boleta.grado
-                    }}</span></td>
-            <td class="center" style="width: 20pt;"><span class="label">S</span><span class="value">{{ boleta.seccion
-                    }}</span></td>
-            <td rowspan="3" class="w-foto center bg-gray">FOTO</td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <span class="label">CÉDULA</span>
-                <span class="value">{{ boleta.alumno.cedula }}</span>
-            </td>
-            <td colspan="2">
-                <span class="label">NACIMIENTO</span>
-                <span class="value">{{ boleta.alumno.fecha_nacimiento or '' }}</span>
-            </td>
-            <td colspan="5">
-                <span class="label">LUGAR Y ESTADO</span>
-                <span class="value">{{ boleta.alumno.lugar_nacimiento or '' }}, {{ boleta.alumno.estado_nacimiento or ''
-                    }}</span>
+            <td style="width: 14%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">CÓDIGO</div><div class="v">{{ boleta.alumno.codigo or '' }}</div></td>
+            <td style="width: 6%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">LISTA</div><div class="v">{{ boleta.numero_lista or '' }}</div></td>
+            <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">TEXTO</div><div class="v">24</div></td>
+            <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">NIVEL</div><div class="v">{{ boleta.grado }}</div></td>
+            <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">CURSO</div><div class="v">{{ boleta.grado }}</div></td>
+            <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">SEC</div><div class="v">{{ boleta.seccion }}</div></td>
+            <td rowspan="4" style="width: 11%; padding: 2.5pt 2pt; text-align: center;" valign="middle">
+                <span class="b" style="font-size: 5pt;">FOTO</span>
             </td>
         </tr>
+        <!-- Row 2 -->
         <tr>
-            <td colspan="6">
-                <span class="label">PLANTEL</span>
-                <span class="value">{{ boleta.nombre_plantel }}</span>
-                <div class="tiny-text">{{ boleta.direccion_plantel }}</div>
+            <td style="width: 18%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">CÉDULA DE IDENTIDAD</div><div class="v">{{ boleta.alumno.cedula }}</div></td>
+            <td style="width: 17%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">FECHA NACIMIENTO</div><div class="v">{{ boleta.alumno.fecha_nacimiento or '' }}</div></td>
+            <td colspan="3" style="width: 25%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">LOC. NACIMIENTO</div><div class="v">{{ boleta.alumno.lugar_nacimiento or '' }}</div></td>
+            <td colspan="3" style="width: 15%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">ESTADO DE NACIMIENTO</div><div class="v">{{ boleta.alumno.estado_nacimiento or '' }}</div></td>
+        </tr>
+        <!-- Row 3 -->
+        <tr>
+            <td colspan="2" rowspan="2" valign="top" style="padding: 2.5pt 2pt;">
+                <div class="lbl">NOMBRE Y DIRECCIÓN DEL PLANTEL</div>
+                <div class="v">{{ boleta.nombre_plantel }}</div>
+                {% if boleta.direccion_plantel %}
+                <div style="font-size: 4pt; font-weight: bold; color: #444; margin-top: 1pt;">{{ boleta.direccion_plantel }}</div>
+                {% endif %}
             </td>
-            <td colspan="3">
-                <span class="label">REPRESENTANTE</span>
-                <span class="value">{{ boleta.alumno.nombre_representante }}</span>
+            <td colspan="3" rowspan="2" valign="top" style="padding: 2.5pt 2pt;">
+                <div class="lbl">NOMBRE Y DIRECCIÓN DEL PADRE O REPRESENTANTE</div>
+                <div class="v" style="margin-top: 1pt;">{{ boleta.alumno.nombre_representante }}</div>
             </td>
-            <td class="center">
-                <span class="label">AÑO ESCOLAR</span>
-                <span class="value">{{ boleta.anio_escolar }}</span>
+            <td colspan="3" valign="top" style="padding: 2.5pt 2pt;">
+                <div class="lbl">AÑO ESCOLAR</div>
+                <div class="v">{{ boleta.anio_escolar }}</div>
             </td>
-            <!-- Removed the 11th column here because FOTO (rowspan 3) takes it -->
+        </tr>
+        <!-- Row 4 -->
+        <tr>
+            <td colspan="3" valign="top" style="padding: 2.5pt 2pt; height: 10pt;">
+                <div class="lbl">INASISTENCIAS</div>
+            </td>
         </tr>
     </table>
 
-    <div style="height: 5pt;"></div>
+    <!-- ========== LABEL ========== -->
+    <table class="nb" style="margin-bottom: 0pt;">
+        <tr>
+            <td class="nb" style="font-size: 3.5pt; font-weight: bold;">RESULTADOS DE LA EVALUACIÓN</td>
+            <td class="nb" style="font-size: 3.5pt; font-weight: bold; text-align: right;">HISTORIA DEL ESTUDIANTE DURANTE EL AÑO ESCOLAR</td>
+        </tr>
+    </table>
 
-    <!-- GRADES TABLE -->
-    {% set eval_type = boleta.tipo_evaluacion %}
-    {% set show_l2 = eval_type not in ['1er Lapso'] %}
-    {% set show_l3 = eval_type not in ['1er Lapso', '2do Lapso'] %}
-    {% set show_final = eval_type not in ['1er Lapso', '2do Lapso'] %}
-
-    <table>
+    <!-- ========== GRADES TABLE — ALWAYS 3 LAPSOS + FINAL ========== -->
+    <table style="margin-bottom: 3pt; table-layout: fixed; width: 100%;">
         <thead>
-            <tr class="bg-gray">
-                <th rowspan="2" class="w-subject">MATERIAS</th>
-                <th colspan="5" class="lapso-title center" style="width: 75pt;">1er LAPSO</th>
-                {% if show_l2 %}
-                <th colspan="5" class="lapso-title center" style="width: 75pt;">2do LAPSO</th>
-                {% endif %}
-                {% if show_l3 %}
-                <th colspan="5" class="lapso-title center" style="width: 75pt;">3er LAPSO</th>
-                {% endif %}
-                {% if show_final %}
-                <th rowspan="2" class="w-meta">DEF</th>
-                <th rowspan="2" class="w-meta">REV</th>
-                {% endif %}
+            <tr class="bg">
+                <th rowspan="2" align="left" style="font-size: 4pt; width: 24%;">ÁREAS O MATERIAS</th>
+                <th colspan="5" style="font-size: 3.5pt;">LAPSO 1</th>
+                <th colspan="5" style="font-size: 3.5pt;">LAPSO 2</th>
+                <th colspan="5" style="font-size: 3.5pt;">LAPSO 3</th>
+                <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">FINAL</th>
+                <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">REV</th>
+                <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">SEM</th>
+                <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">MED</th>
             </tr>
-            <tr class="bg-gray">
-                <!-- L1 -->
-                <th class="w-grade tiny-text center">P1</th>
-                <th class="w-grade tiny-text center">P2</th>
-                <th class="w-grade tiny-text center">AC</th>
-                <th class="w-grade tiny-text center">PB</th>
-                <th class="w-grade tiny-text center">DF</th>
-                {% if show_l2 %}
-                <!-- L2 -->
-                <th class="w-grade tiny-text center">P1</th>
-                <th class="w-grade tiny-text center">P2</th>
-                <th class="w-grade tiny-text center">AC</th>
-                <th class="w-grade tiny-text center">PB</th>
-                <th class="w-grade tiny-text center">DF</th>
-                {% endif %}
-                {% if show_l3 %}
-                <!-- L3 -->
-                <th class="w-grade tiny-text center">P1</th>
-                <th class="w-grade tiny-text center">P2</th>
-                <th class="w-grade tiny-text center">AC</th>
-                <th class="w-grade tiny-text center">PB</th>
-                <th class="w-grade tiny-text center">DF</th>
-                {% endif %}
+            <tr class="bg">
+                <!-- Lapso 1 sub-headers -->
+                <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
+                <!-- Lapso 2 sub-headers -->
+                <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
+                <!-- Lapso 3 sub-headers -->
+                <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
             </tr>
         </thead>
         <tbody>
             {% for cal in boleta.calificaciones %}
             <tr>
-                <td class="w-subject" style="font-weight: bold;">{{ cal.materia.nombre }}</td>
-                <!-- L1 -->
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="center value">{{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if not
-                    cal.materia.es_numerica else '') }}</td>
-                {% if show_l2 %}
-                <!-- L2 -->
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="center value">{{ cal.lapso_2_def if cal.lapso_2_def is not none else (cal.literal if not
-                    cal.materia.es_numerica else '') }}</td>
-                {% endif %}
-                {% if show_l3 %}
-                <!-- L3 -->
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="center value">{{ cal.lapso_3_def if cal.lapso_3_def is not none else (cal.literal if not
-                    cal.materia.es_numerica else '') }}</td>
-                {% endif %}
-                {% if show_final %}
-                <!-- DEF -->
-                <td class="center value">{{ cal.def_final or '' }}</td>
-                <td></td>
-                {% endif %}
+                <td class="mc b">{{ cal.materia.nombre }}</td>
+                <!-- LAPSO 1: always visible, fill DEF-LP if data exists -->
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc bg b">{{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if not cal.materia.es_numerica else '') }}</td>
+                <!-- LAPSO 2: always visible, fill DEF-LP if data exists -->
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc bg b">{{ cal.lapso_2_def if cal.lapso_2_def is not none else '' }}</td>
+                <!-- LAPSO 3: always visible, fill DEF-LP if data exists -->
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc bg b">{{ cal.lapso_3_def if cal.lapso_3_def is not none else '' }}</td>
+                <!-- FINAL + REV -->
+                <td class="gc b">{{ cal.def_final if cal.def_final is not none else '' }}</td>
+                <td class="gc"></td>
+                <!-- SEM + MED -->
+                <td class="gc"></td><td class="gc"></td>
             </tr>
             {% endfor %}
-            <tr class="bg-gray">
-                <td class="w-subject">MEDIAS GLOBALES</td>
-                <td colspan="4"></td>
-                <td class="center value">{{ boleta.media_lapso_1 or '' }}</td>
-                {% if show_l2 %}
-                <td colspan="4"></td>
-                <td class="center value">{{ boleta.media_lapso_2 or '' }}</td>
-                {% endif %}
-                {% if show_l3 %}
-                <td colspan="4"></td>
-                <td class="center value">{{ boleta.media_lapso_3 or '' }}</td>
-                {% endif %}
-                {% if show_final %}
-                <td class="center value">{{ boleta.medias_globales or '' }}</td>
-                <td></td>
-                {% endif %}
+            <tr class="bg">
+                <td class="mc r b">MEDIAS GLOBALES</td>
+                <td class="gc" colspan="5"></td>
+                <td class="gc" colspan="5"></td>
+                <td class="gc" colspan="5"></td>
+                <td class="gc b">{{ boleta.medias_globales if boleta.medias_globales is not none else '' }}</td>
+                <td class="gc"></td>
+                <td class="gc" colspan="2"></td>
+            </tr>
+            <!-- ========== SELLO, MATERIA PENDIENTE & EXTRA INFO (5 ROWS) ========== -->
+            <tr>
+                <td rowspan="5" valign="top" style="padding: 2pt;">
+                    <div style="border: 0.5pt dashed #999; height: 50pt; width: 50pt; margin: 0 auto; text-align: center; color: #777; font-size: 2.5pt; border-radius: 25pt; padding-top: 8pt; line-height: 1.1; box-sizing: border-box;">
+                        REP. BOLIVARIANA<br>DE VENEZUELA<br>
+                        <br>
+                        <span style="font-size: 4pt; font-weight: bold; color: #555;">SELLO DEL<br>PLANTEL</span>
+                    </div>
+                    <div style="font-size: 3.5pt; font-weight: bold; margin-top: 3pt; padding-left: 2pt;">MATERIA PENDIENTE</div>
+                </td>
+                
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">CLASE</td>
+            </tr>
+            <tr>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_1 if boleta.media_lapso_1 is not none else '' }}</td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_2 if boleta.media_lapso_2 is not none else '' }}</td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_3 if boleta.media_lapso_3 is not none else '' }}</td>
+                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">ESTUDIANTE</td>
+            </tr>
+            <tr>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">POSICIÓN</td>
+            </tr>
+            <tr>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt; line-height: 1.0;">FECHA DE LA<br>EVALUACIÓN</td>
+            </tr>
+            <tr>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">FINAL</td>
             </tr>
         </tbody>
     </table>
 
-    <div style="height: 10pt;"></div>
-
-    <!-- BOTTOM SECTION: TWO-COLUMN LAYOUT TABLE -->
-    <table style="border: none;">
+    <!-- ========== SITUACION + RIGHT PANEL ========== -->
+    <table class="nb" style="margin-bottom: 2pt;">
         <tr>
-            <td style="width: 380pt; border: none; padding-right: 10pt;">
-                <div style="font-weight: bold; margin-bottom: 2pt;">Situación del Alumno vs Sección</div>
-                <table>
+            <td width="66%" class="nb" valign="top" style="padding: 0; padding-right: 3pt;">
+
+                <!-- SITUACION TABLE -->
+                <table style="table-layout: fixed; width: 100%;">
                     <thead>
-                        <tr class="bg-gray">
-                            <th style="width: 120pt;">ÁREAS</th>
-                            <th style="width: 20pt;">NOT</th>
-                            <th style="width: 20pt;">PRO</th>
-                            <th style="width: 30pt;" class="tiny-text">M.BAJO</th>
-                            <th style="width: 30pt;" class="tiny-text">BAJO</th>
-                            <th style="width: 30pt;" class="tiny-text">MEDIO</th>
-                            <th style="width: 30pt;" class="tiny-text">M.ALTO</th>
-                            <th style="width: 30pt;" class="tiny-text">ALTO</th>
-                            <th style="width: 30pt;" class="tiny-text">EXCEL</th>
+                        <tr><th colspan="9" class="c bg" style="font-size: 3.5pt; padding: 1pt;">SITUACIÓN DEL ESTUDIANTE CON RESPECTO AL PROMEDIO DE LA SECCIÓN</th></tr>
+                        <tr class="bg">
+                            <th align="left" style="font-size: 3.5pt; width: 24%;">ÁREAS O MATERIAS</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NOTA<br>DEL<br>ESTUDIANTE</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">PROMEDIO<br>DE LA<br>SECCIÓN</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>MUY<br>BAJO</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>BAJO</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>MEDIO BAJO</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>MEDIO ALTO</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>ALTO</th>
+                            <th class="sh" style="font-size: 3pt; width: 9.5%;">NIVEL<br>MUY<br>ALTO</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for cal in boleta.calificaciones %}
                         <tr>
-                            <td>{{ cal.materia.nombre }}</td>
-                            <td class="center value">{{ cal.lapso_1_def or cal.literal or '' }}</td>
-                            <td class="center">14</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def < 10 %}X{% endif %}</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def >= 10 and cal.lapso_1_def < 13 %}X{% endif
-                                    %}</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def >= 13 and cal.lapso_1_def < 15 %}X{% endif
-                                    %}</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def >= 15 and cal.lapso_1_def < 17 %}X{% endif
-                                    %}</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def >= 17 and cal.lapso_1_def < 19 %}X{% endif
-                                    %}</td>
-                            <td>{% if cal.lapso_1_def and cal.lapso_1_def >= 19 %}X{% endif %}</td>
+                            <td class="mc">{{ cal.materia.nombre }}</td>
+                            <td class="gc b">{{ cal.def_final if cal.def_final is not none else (cal.lapso_3_def if cal.lapso_3_def is not none else (cal.lapso_2_def if cal.lapso_2_def is not none else (cal.lapso_1_def if cal.lapso_1_def is not none else ''))) }}</td>
+                            <td class="gc"></td>
+                            <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                         </tr>
                         {% endfor %}
+                        <tr class="bg">
+                            <td class="mc r b">MEDIAS GLOBALES</td>
+                            <td class="gc b">{{ boleta.medias_globales if boleta.medias_globales is not none else (boleta.media_lapso_3 if boleta.media_lapso_3 is not none else (boleta.media_lapso_2 if boleta.media_lapso_2 is not none else (boleta.media_lapso_1 if boleta.media_lapso_1 is not none else ''))) }}</td>
+                            <td class="gc" colspan="7"></td>
+                        </tr>
                     </tbody>
                 </table>
+
+                <!-- PROFESOR YAP OBSERVACIONES BLOCK -->
+                <table width="100%" style="margin-top: 2pt;">
+                    <tr>
+                        <td width="20%" valign="top" style="padding: 2pt;">
+                            <div style="font-size: 3.5pt; color: #333;">PROFESOR</div>
+                            <!-- Espacio para firma de profesor -->
+                            <div style="height: 25pt;"></div>
+                            <div class="c" style="font-size: 4pt; font-weight: bold;">{{ boleta.profesor or '' }}</div>
+                        </td>
+                        <td width="80%" valign="top" style="padding: 0;">
+                            <table width="100%" class="nb" style="border: none;">
+                                <tr class="bg">
+                                    <td class="c" style="font-size: 3.5pt; padding: 1pt; border-bottom: 0.5pt solid #000; border-left: 0.5pt solid #000;">SITUACIÓN GENERAL DEL ESTUDIANTE</td>
+                                </tr>
+                                <tr>
+                                    <td valign="top" style="padding: 2pt; height: 18pt; border-bottom: 0.5pt solid #000; border-left: 0.5pt solid #000;">
+                                        <div style="font-size: 3.5pt; color: #333; margin-bottom: 1pt;">OBSERVACIONES</div>
+                                        <div style="font-size: 4pt; font-weight: bold;">{{ boleta.observaciones or '' }}</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td valign="top" style="padding: 2pt; height: 12pt; border-left: 0.5pt solid #000;">
+                                        <div style="font-size: 3.5pt; color: #333;">REPRESENTANTE</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </td>
-            <td style="border: none;">
-                <div style="border: 0.5pt solid #000; padding: 4pt; margin-bottom: 5pt;" class="center">
-                    <span class="label">EVALUACIÓN</span>
-                    <span class="value">{{ boleta.tipo_evaluacion }}</span>
-                </div>
-                <div style="border: 0.5pt solid #000; padding: 4pt; margin-bottom: 5pt;" class="center">
-                    <span class="label">REPRESENTANTE</span>
-                    <span class="value">{{ boleta.alumno.nombre_representante }}</span>
-                </div>
-                <div style="border: 0.5pt solid #000; height: 60pt; position: relative;" class="center">
-                    <div style="margin-top: 45pt; font-size: 5pt;">SELLO Y FIRMA DE LA DIRECCIÓN</div>
-                </div>
+
+            <!-- RIGHT PANEL -->
+            <td width="34%" class="nb" valign="top" style="padding: 0;">
+                <table width="100%">
+                    <tr class="bg"><td style="padding: 1.5pt;"><span class="lbl">TIPO EVALUACIÓN</span><span class="v">{{ boleta.tipo_evaluacion }}</span></td></tr>
+                    <tr class="bg"><td style="padding: 1.5pt;"><span class="lbl">MATRÍCULA</span><span class="v">{{ boleta.alumno.cedula }}</span></td></tr>
+                    <tr><td style="height: 22pt; padding: 1pt;" valign="top"><span class="lbl">FIRMA DEL DIRECTOR O REPRESENTANTE DEL CONSEJO DOCENTE</span></td></tr>
+                </table>
+
+                <!-- INFO BOX -->
+                <table width="100%" style="margin-top: 2pt;">
+                    <tr><td style="padding: 2pt; font-size: 3pt; line-height: 1.2;">
+                        <p style="margin: 0 0 1pt 0;">La información de este apartado responde exclusivamente a la evaluación parcial o prueba de lapso, realizada en esta fecha.</p>
+                        <p style="margin: 0 0 1pt 0;">Las notas numéricas corresponden al estudiante (1a. columna) y el promedio de la clase (2da. columna) por asignatura.</p>
+                        <p style="margin: 0 0 1pt 0;">Las medias globales contemplan el conjunto de asignaturas.</p>
+                        <p style="margin: 0 0 1pt 0;">Las gráficas sitúan al estudiante en relación a la clase por materias y globalmente.</p>
+                        <p style="margin: 0;">Los niveles de las gráficas indican, si el estudiante es inferior igual o superior a la media de la clase y en qué nivel.</p>
+                    </td></tr>
+                </table>
+
+                <!-- ========== JUSTIFICANTE EN EL PANEL DERECHO ========== -->
+                <table width="100%" style="margin-top: 2pt;">
+                    <tr class="bg"><td colspan="2" class="c b" style="font-size: 3.5pt; padding: 1pt;">JUSTIFICANTE DE LA RECEPCIÓN DE LA BOLETA (ESTUDIANTE)</td></tr>
+                    <tr>
+                        <td colspan="2" style="font-size: 3.5pt; padding: 1.5pt 2pt; border-bottom: 0.5pt solid #000; line-height: 1.4;">
+                            <span style="color: #444;">Alumno(a):</span> &nbsp;&nbsp; <span class="b">{{ boleta.alumno.apellido }}, {{ boleta.alumno.nombre }}</span><br>
+                            <span style="color: #444;">Curso:</span> &nbsp;&nbsp; <span class="b">{{ boleta.grado }}{{ boleta.seccion }}</span> &nbsp;&nbsp;&nbsp;&nbsp; 
+                            <span style="color: #444;">Número de Lista:</span> &nbsp;&nbsp; <span class="b">{{ boleta.numero_lista or '' }}</span> &nbsp;&nbsp;&nbsp;&nbsp; 
+                            <span style="color: #444;">C.I.:</span> &nbsp;&nbsp; <span class="b">{{ boleta.alumno.cedula }}</span><br>
+                            <span style="color: #444;">Representante:</span> &nbsp;&nbsp; <span class="b">{{ boleta.alumno.nombre_representante }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" class="c" style="font-size: 3.5pt; padding: 1.5pt; border-right: 0.5pt solid #000; border-bottom: 0.5pt solid #000; color: #444;">FECHA</td>
+                        <td width="50%" class="c" style="font-size: 3.5pt; padding: 1.5pt; border-bottom: 0.5pt solid #000; color: #444;">FIRMA DEL REPRESENTANTE</td>
+                    </tr>
+                    <tr>
+                        <td width="50%" class="c" valign="top" style="padding: 0; border-right: 0.5pt solid #000;">
+                            <table width="100%" class="nb" style="border: none;">
+                                <tr><td class="c bg" style="font-size: 3.5pt; padding: 1.5pt; border-bottom: 0.5pt solid #000; color: #444;">TIPO DE EVALUACIÓN</td></tr>
+                                <tr><td class="c" style="font-size: 4pt; padding: 3pt;">{{ boleta.tipo_evaluacion }}</td></tr>
+                            </table>
+                        </td>
+                        <td width="50%">
+                            <!-- Blank space for signature -->
+                        </td>
+                    </tr>
+                </table>
+
             </td>
         </tr>
     </table>
-
-    <div style="margin-top: 40pt; border-top: 1pt dashed #000; padding-top: 10pt;">
-        <div class="center" style="font-weight: bold; margin-bottom: 5pt;">RECEPCIÓN DE BOLETA (ARCHIVO PLANTEL)</div>
-        <table style="border: none;">
-            <tr>
-                <td style="border: none;"><span class="label">ALUMNO</span><span class="value">{{ boleta.alumno.apellido
-                        }}, {{ boleta.alumno.nombre }}</span></td>
-                <td style="border: none;"><span class="label">C.I.</span><span class="value">{{ boleta.alumno.cedula
-                        }}</span></td>
-                <td style="border: none;"><span class="label">CURSO</span><span class="value">{{ boleta.grado }}{{
-                        boleta.seccion }} - #{{ boleta.numero_lista }}</span></td>
-            </tr>
-        </table>
-        <table style="border: none; margin-top: 10pt;">
-            <tr>
-                <td style="border: none; border-bottom: 0.5pt solid #000 !important; width: 100pt; height: 20pt;"><span
-                        class="label">FECHA</span></td>
-                <td style="width: 50pt; border: none;"></td>
-                <td style="border: none; border-bottom: 0.5pt solid #000 !important; width: 200pt;"><span
-                        class="label">FIRMA REPRESENTANTE</span></td>
-                <td style="border: none;" class="center"><span class="label">CONTROL</span><span class="value"
-                        style="font-size: 5pt;">{{ boleta.tipo_evaluacion }}</span></td>
-            </tr>
-        </table>
-    </div>
 </body>
-
 </html>
