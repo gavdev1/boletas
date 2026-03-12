@@ -123,25 +123,24 @@
         </tr>
     </table>
 
-    <!-- ========== GRADES TABLE — ALWAYS 3 LAPSOS + FINAL ========== -->
+    <!-- ========== GRADES TABLE — CUMULATIVE VIEW ========== -->
     <table style="margin-bottom: 3pt; table-layout: fixed; width: 100%;">
         <thead>
             <tr class="bg">
                 <th rowspan="2" align="left" style="font-size: 4pt; width: 24%;">ÁREAS O MATERIAS</th>
+                
                 <th colspan="5" style="font-size: 3.5pt;">LAPSO 1</th>
                 <th colspan="5" style="font-size: 3.5pt;">LAPSO 2</th>
                 <th colspan="5" style="font-size: 3.5pt;">LAPSO 3</th>
                 <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">FINAL</th>
+
                 <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">REV</th>
                 <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">SEM</th>
                 <th rowspan="2" class="sh" style="font-size: 3pt; width: 4%;">MED</th>
             </tr>
             <tr class="bg">
-                <!-- Lapso 1 sub-headers -->
                 <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
-                <!-- Lapso 2 sub-headers -->
                 <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
-                <!-- Lapso 3 sub-headers -->
                 <th class="sh" width="4%">P1</th><th class="sh" width="4%">P2</th><th class="sh" width="4%">AC</th><th class="sh" width="4%">PB</th><th class="sh" width="4%">DF</th>
             </tr>
         </thead>
@@ -149,28 +148,62 @@
             {% for cal in boleta.calificaciones %}
             <tr>
                 <td class="mc b">{{ cal.materia.nombre }}</td>
-                <!-- LAPSO 1: always visible, fill DEF-LP if data exists -->
+                
+                <!-- Lapso 1 -->
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td class="gc bg b">{{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if not cal.materia.es_numerica else '') }}</td>
-                <!-- LAPSO 2: always visible, fill DEF-LP if data exists -->
+                <td class="gc bg b">
+                    {% if boleta.hasta_lapso >= 1 %}
+                        {{ cal.lapso_1_def if cal.lapso_1_def is not none else (cal.literal if not cal.materia.es_numerica else '') }}
+                    {% endif %}
+                </td>
+
+                <!-- Lapso 2 -->
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td class="gc bg b">{{ cal.lapso_2_def if cal.lapso_2_def is not none else '' }}</td>
-                <!-- LAPSO 3: always visible, fill DEF-LP if data exists -->
+                <td class="gc bg b">
+                    {% if boleta.hasta_lapso >= 2 %}
+                        {{ cal.lapso_2_def if cal.lapso_2_def is not none else '' }}
+                    {% endif %}
+                </td>
+
+                <!-- Lapso 3 -->
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td class="gc bg b">{{ cal.lapso_3_def if cal.lapso_3_def is not none else '' }}</td>
-                <!-- FINAL + REV -->
-                <td class="gc b">{{ cal.def_final if cal.def_final is not none else '' }}</td>
+                <td class="gc bg b">
+                    {% if boleta.hasta_lapso >= 3 %}
+                        {{ cal.lapso_3_def if cal.lapso_3_def is not none else '' }}
+                    {% endif %}
+                </td>
+
+                <!-- Final -->
+                <td class="gc b">
+                    {% if boleta.hasta_lapso >= 3 %}
+                        {{ cal.def_final if cal.def_final is not none else '' }}
+                    {% endif %}
+                </td>
+
                 <td class="gc"></td>
-                <!-- SEM + MED -->
                 <td class="gc"></td><td class="gc"></td>
             </tr>
             {% endfor %}
             <tr class="bg">
                 <td class="mc r b">MEDIAS GLOBALES</td>
-                <td class="gc" colspan="5"></td>
-                <td class="gc" colspan="5"></td>
-                <td class="gc" colspan="5"></td>
-                <td class="gc b">{{ boleta.medias_globales if boleta.medias_globales is not none else '' }}</td>
+                <!-- Lapso 1 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.media_lapso_1 if boleta.media_lapso_1 is not none else '' }}</td>
+                
+                <!-- Lapso 2 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.media_lapso_2 if boleta.media_lapso_2 is not none else '' }}</td>
+
+                <!-- Lapso 3 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.media_lapso_3 if boleta.media_lapso_3 is not none else '' }}</td>
+
+                <!-- Definitiva Final -->
+                <td class="gc b">
+                    {% if boleta.hasta_lapso >= 3 %}
+                        {{ boleta.medias_globales if boleta.medias_globales is not none else '' }}
+                    {% endif %}
+                </td>
                 <td class="gc"></td>
                 <td class="gc" colspan="2"></td>
             </tr>
@@ -188,31 +221,51 @@
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">CLASE</td>
+                
+                {% set total_extra_cols = 3 %}
+                <td colspan="{{ total_extra_cols }}" class="r" style="font-size: 3pt; padding-right: 2pt;">CLASE</td>
             </tr>
             <tr>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_1 if boleta.media_lapso_1 is not none else '' }}</td>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_2 if boleta.media_lapso_2 is not none else '' }}</td>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b">{{ boleta.media_lapso_3 if boleta.media_lapso_3 is not none else '' }}</td>
-                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">ESTUDIANTE</td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc b">
+                    {% if boleta.hasta_lapso >= 1 %}
+                        {{ boleta.media_lapso_1 if boleta.media_lapso_1 is not none else '' }}
+                    {% endif %}
+                </td>
+                
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc b">
+                    {% if boleta.hasta_lapso >= 2 %}
+                        {{ boleta.media_lapso_2 if boleta.media_lapso_2 is not none else '' }}
+                    {% endif %}
+                </td>
+
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc b">
+                    {% if boleta.hasta_lapso >= 3 %}
+                        {{ boleta.media_lapso_3 if boleta.media_lapso_3 is not none else '' }}
+                    {% endif %}
+                </td>
+
+                <td colspan="{{ total_extra_cols }}" class="r" style="font-size: 3pt; padding-right: 2pt;">ESTUDIANTE</td>
             </tr>
             <tr>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">POSICIÓN</td>
+                <td colspan="{{ total_extra_cols }}" class="r" style="font-size: 3pt; padding-right: 2pt;">POSICIÓN</td>
             </tr>
             <tr>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                 <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
-                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt; line-height: 1.0;">FECHA DE LA<br>EVALUACIÓN</td>
+                <td colspan="{{ total_extra_cols }}" class="r" style="font-size: 3pt; padding-right: 2pt; line-height: 1.0;">FECHA DE LA<br>EVALUACIÓN</td>
             </tr>
             <tr>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b"></td>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b"></td>
-                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc b"></td>
-                <td colspan="4" class="r" style="font-size: 3pt; padding-right: 2pt;">FINAL</td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
+                <td colspan="{{ total_extra_cols }}" class="r" style="font-size: 3pt; padding-right: 2pt;">FINAL</td>
             </tr>
         </tbody>
     </table>
@@ -242,14 +295,24 @@
                         {% for cal in boleta.calificaciones %}
                         <tr>
                             <td class="mc">{{ cal.materia.nombre }}</td>
-                            <td class="gc b">{{ cal.def_final if cal.def_final is not none else (cal.lapso_3_def if cal.lapso_3_def is not none else (cal.lapso_2_def if cal.lapso_2_def is not none else (cal.lapso_1_def if cal.lapso_1_def is not none else ''))) }}</td>
-                            <td class="gc b">{{ boleta.media_seccion if boleta.media_seccion is not none else '' }}</td>
+                            <td class="gc b">
+                                {% if boleta.hasta_lapso == 1 %}{{ cal.lapso_1_def if cal.lapso_1_def is not none else '' }}
+                                {% elif boleta.hasta_lapso == 2 %}{{ cal.lapso_2_def if cal.lapso_2_def is not none else '' }}
+                                {% else %}{{ cal.def_final if cal.def_final is not none else '' }}
+                                {% endif %}
+                            </td>
+                            <td class="gc b">{{ cal.media_seccion if cal.media_seccion is not none else '' }}</td>
                             <td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td>
                         </tr>
                         {% endfor %}
                         <tr class="bg">
                             <td class="mc r b">MEDIAS GLOBALES</td>
-                            <td class="gc b">{{ boleta.medias_globales if boleta.medias_globales is not none else (boleta.media_lapso_3 if boleta.media_lapso_3 is not none else (boleta.media_lapso_2 if boleta.media_lapso_2 is not none else (boleta.media_lapso_1 if boleta.media_lapso_1 is not none else ''))) }}</td>
+                            <td class="gc b">
+                                {% if boleta.hasta_lapso == 1 %}{{ boleta.media_lapso_1 if boleta.media_lapso_1 is not none else '' }}
+                                {% elif boleta.hasta_lapso == 2 %}{{ boleta.media_lapso_2 if boleta.media_lapso_2 is not none else '' }}
+                                {% else %}{{ boleta.medias_globales if boleta.medias_globales is not none else '' }}
+                                {% endif %}
+                            </td>
                             <td class="gc b">{{ boleta.media_seccion if boleta.media_seccion is not none else '' }}</td>
                             <td class="gc" colspan="6"></td>
                         </tr>

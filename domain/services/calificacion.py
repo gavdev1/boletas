@@ -60,6 +60,10 @@ class CalificacionService:
             update_data.def_final = int((sum(valid) / len(valid)) + 0.5)
 
     def registrar_calificacion(self, calif_in: CalificacionCreate) -> CalificacionResponse:
+        if not calif_in.anio_escolar:
+            config = self.config_repo.get_config()
+            calif_in.anio_escolar = config.anio_escolar_actual if config else "2024-2025"
+            
         self._calcular_definitiva(calif_in)
         # Verificar si ya existe para actualizar o crear
         existente = self.repository.get_by_alumno_materia_year(
@@ -87,7 +91,11 @@ class CalificacionService:
             return CalificacionResponse.model_validate(db_calif)
         return None
 
-    def listar_por_alumno(self, alumno_id: int, anio_escolar: str) -> List[CalificacionResponse]:
+    def listar_por_alumno(self, alumno_id: int, anio_escolar: Optional[str] = None) -> List[CalificacionResponse]:
+        if not anio_escolar:
+            config = self.config_repo.get_config()
+            anio_escolar = config.anio_escolar_actual if config else "2024-2025"
+            
         db_califs = self.repository.get_all_by_alumno_year(alumno_id, anio_escolar)
         return [CalificacionResponse.model_validate(c) for c in db_califs]
 

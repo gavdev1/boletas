@@ -27,6 +27,7 @@ class Alumno(Base):
     direccion_representante = Column(String, nullable=True)
     grado = Column(Integer, nullable=True) # Grado actual
     seccion = Column(String, nullable=True) # Sección actual
+    numero_lista = Column(Integer, nullable=True)
 
     boletas = relationship("Boleta", back_populates="alumno", cascade="all, delete-orphan")
     calificaciones = relationship("Calificacion", back_populates="alumno", cascade="all, delete-orphan")
@@ -54,6 +55,7 @@ class Boleta(Base):
     numero_lista = Column(Integer, nullable=True)
     tipo_evaluacion = Column(String, nullable=False)
     observaciones = Column(String, nullable=True)
+    hasta_lapso = Column(Integer, default=3) # 1, 2 o 3
     media_lapso_1 = Column(Float, nullable=True)
     media_lapso_2 = Column(Float, nullable=True)
     media_lapso_3 = Column(Float, nullable=True)

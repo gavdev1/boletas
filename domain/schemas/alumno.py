@@ -15,6 +15,7 @@ class AlumnoBase(BaseModel):
     direccion_representante: Optional[str] = None
     grado: Optional[int] = None
     seccion: Optional[str] = None
+    numero_lista: Optional[int] = None
 
 
 class AlumnoCreate(AlumnoBase):

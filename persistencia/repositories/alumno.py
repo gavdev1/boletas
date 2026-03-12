@@ -10,17 +10,7 @@ class AlumnoRepository:
         self.session = session
 
     def create(self, alumno_in: AlumnoCreate) -> Alumno:
-        db_alumno = Alumno(
-            cedula=alumno_in.cedula,
-            nombre=alumno_in.nombre,
-            apellido=alumno_in.apellido,
-            codigo=alumno_in.codigo,
-            fecha_nacimiento=alumno_in.fecha_nacimiento,
-            lugar_nacimiento=alumno_in.lugar_nacimiento,
-            estado_nacimiento=alumno_in.estado_nacimiento,
-            nombre_representante=alumno_in.nombre_representante,
-            direccion_representante=alumno_in.direccion_representante,
-        )
+        db_alumno = Alumno(**alumno_in.model_dump())
         self.session.add(db_alumno)
         self.session.commit()
         self.session.refresh(db_alumno)

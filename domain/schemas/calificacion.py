@@ -6,7 +6,7 @@ from domain.schemas.materia import MateriaResponse
 class CalificacionBase(BaseModel):
     alumno_id: int
     materia_id: int
-    anio_escolar: str
+    anio_escolar: Optional[str] = None
     lapso_1_def: Optional[int] = None
     lapso_2_def: Optional[int] = None
     lapso_3_def: Optional[int] = None
@@ -39,6 +39,7 @@ class LapsoNotaInput(BaseModel):
 class CalificacionResponse(CalificacionBase):
     id: int
     materia: MateriaResponse
+    media_seccion: Optional[float] = None
 
     model_config = {
         "from_attributes": True

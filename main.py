@@ -39,7 +39,6 @@ app.include_router(alumnos.router, prefix="/alumnos", tags=["alumnos"], dependen
 app.include_router(materias.router, prefix="/materias", tags=["materias"], dependencies=[Depends(get_current_user)])
 app.include_router(calificaciones.router, prefix="/calificaciones", tags=["calificaciones"], dependencies=[Depends(get_current_user)])
 app.include_router(boletas.router, prefix="/boletas", tags=["boletas"], dependencies=[Depends(get_current_user)])
-app.include_router(tareas.router, prefix="/tareas", tags=["tareas"], dependencies=[Depends(get_current_user)])
 app.include_router(configuracion.router, prefix="/configuracion", tags=["configuracion"], dependencies=[Depends(get_current_user)])
 
 @app.get("/")

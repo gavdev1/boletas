@@ -20,7 +20,7 @@ def registrar_nota_rapida(
 @router.get("/alumno/{alumno_id}", response_model=List[CalificacionResponse])
 def listar_calificaciones_alumno(
     alumno_id: int,
-    anio_escolar: str,
+    anio_escolar: str | None = None,
     service: CalificacionService = Depends(get_calificacion_service)
 ) -> List[CalificacionResponse]:
     return service.listar_por_alumno(alumno_id, anio_escolar)

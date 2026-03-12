@@ -9,10 +9,9 @@ class BoletaRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create(self, boleta_in: BoletaCreate) -> Boleta:
-        # Usar model_dump para evitar mapeo manual propenso a errores
-        data = boleta_in.model_dump()
-        db_boleta = Boleta(**data)
+    def create(self, boleta_data: dict) -> Boleta:
+        # Crea la boleta a partir de un diccionario que ya contiene los calculos
+        db_boleta = Boleta(**boleta_data)
 
         self.session.add(db_boleta)
         self.session.commit()
