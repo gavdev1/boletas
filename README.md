@@ -157,26 +157,6 @@ Generación de reportes PDF con cálculos de promedios de sección automáticos.
 - **GET `/boletas/{id}`**:JSON detallado con notas inyectadas.
 - **DELETE `/boletas/{id}`**: Eliminar boleta.
 
----
-
-## 📓 Notas Administrativas / Tareas (`/notas`)
-
-Gestión de recordatorios para directivos.
-
-- **POST `/notas/`**:
-    - **JSON Completo:**
-    ```json
-    {
-      "titulo": "Pedir sellos nuevos",
-      "contenido": "Faltan sellos de la zona educativa para el 3er lapso.",
-      "completada": false
-    }
-    ```
-- **GET `/notas/`**: Listar tareas.
-- **PUT `/notas/{id}`**: Marcar como completada o editar.
-- **DELETE `/notas/{id}`**: Borrar tarea.
-
----
 
 ## 🚀 Cómo utilizar los endpoints (Guía Rápida)
 
