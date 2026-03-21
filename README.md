@@ -63,6 +63,25 @@ Define los datos del plantel y el año escolar actual.
 
 ---
 
+## 🏫 Gestión de Secciones (`/secciones`)
+
+- **POST `/secciones/`**: Registra una nueva sección.
+    - **JSON Completo:**
+    ```json
+    {
+      "grado": 1,
+      "letra": "A",
+      "modalidad": "Media General",
+      "anio_escolar": "2025-2026"
+    }
+    ```
+- **GET `/secciones/`**: Lista de secciones. Permite filtros como `?grado=1&letra=A&modalidad=Técnica`.
+- **GET `/secciones/{id}`**: Detalle de una sección específica.
+- **PUT `/secciones/{id}`**: Actualiza los datos de la sección.
+- **DELETE `/secciones/{id}`**: Elimina una sección.
+
+---
+
 ## 👥 Gestión de Alumnos (`/alumnos`)
 
 - **POST `/alumnos/`**: Registro de nuevo estudiante con todos sus datos.
@@ -77,10 +96,13 @@ Define los datos del plantel y el año escolar actual.
       "lugar_nacimiento": "Caracas",
       "estado_nacimiento": "Distrito Capital",
       "nombre_representante": "María de Bello",
-      "direccion_representante": "Av. Principal Los Mangos, Edif Las Acacias",
+      "correo_representante": "maria@ejemplo.com",
+      "direccion_representante": "Av. Principal Los Mangos",
+      "correo_estudiante": "andres@ejemplo.com",
       "grado": 1,
       "seccion": "A",
-      "numero_lista": 1
+      "numero_lista": 1,
+      "modalidad": "Media General"
     }
     ```
 - **GET `/alumnos/`**: Lista alumnos.
@@ -93,17 +115,18 @@ Define los datos del plantel y el año escolar actual.
 
 ## 📚 Materias (`/materias`)
 
-- **POST `/materias/`**: Crea una materia para un grado específico.
+- **POST `/materias/`**: Crea una materia para un grado y modalidad específica.
     - **JSON Completo:**
     ```json
     {
       "nombre": "Matemática",
       "grado": 1,
-      "es_numerica": true
+      "es_numerica": true,
+      "modalidad": "Media General"
     }
     ```
-- **GET `/materias/`**: Lista materias. Filtra por `?grado=1`.
-- **PUT `/materias/{id}`**: Modifica nombre o grado.
+- **GET `/materias/`**: Lista materias. Permite filtrado matricial cruzado `?grado=1&modalidad=Técnica`.
+- **PUT `/materias/{id}`**: Modifica nombre, grado o modalidad.
 - **DELETE `/materias/{id}`**: Borrar materia.
 
 ---
@@ -148,10 +171,14 @@ Generación de reportes PDF con cálculos de promedios de sección automáticos.
       "anio_escolar": "2024-2025",
       "grado": 1,
       "seccion": "A",
-      "numero_lista": 1
+      "numero_lista": 1,
+      "modalidad": "Media General",
+      "inasistencias_lapso_1": 2,
+      "inasistencias_lapso_2": 0,
+      "inasistencias_lapso_3": 0
     }
     ```
-    *Nota: `hasta_lapso` (1, 2 o 3) define qué columnas se llenarán en el reporte.*
+    *Nota: `hasta_lapso` (1, 2 o 3) define qué columnas se llenarán en el reporte. El backend filtrará las calificaciones y aislará la métrica de promedios "media_seccion" dinámicamente según la `modalidad` enviada.*
 - **GET `/boletas/{id}/pdf`**: **Descarga directa del PDF**. 🖨️
 - **GET `/boletas/`**: Listado de todas las boletas creadas.
 - **GET `/boletas/{id}`**:JSON detallado con notas inyectadas.
