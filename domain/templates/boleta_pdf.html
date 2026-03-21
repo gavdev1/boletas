@@ -62,7 +62,7 @@
     <table style="margin-bottom: 2pt; table-layout: fixed; width: 100%;">
         <!-- Row 1 -->
         <tr>
-            <td rowspan="4" style="width: 14%; padding: 2pt; text-align: center;" valign="top">
+            <td rowspan="3" style="width: 14%; padding: 2pt; text-align: center;" valign="top">
                 <div class="b" style="font-size: 7.5pt; line-height: 1.1; margin-bottom: 2pt;">BOLETA DE<br>EVALUACIÓN</div>
                 <div class="b" style="font-size: 5pt; color: #444; margin-bottom: 3pt;">{{ boleta.modalidad | upper }}</div>
                 <div style="font-size: 5pt; color: #666; margin-bottom: 2pt;">ESCUDO</div>
@@ -79,7 +79,7 @@
             <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">NIVEL</div><div class="v">{{ boleta.grado }}</div></td>
             <td style="width: 5%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">CURSO</div><div class="v">{{ boleta.grado }}</div></td>
             <td style="width: 6%; padding: 2.5pt 2pt;" valign="top"><div class="lbl">SECCIÓN</div><div class="v">{{ boleta.seccion }}</div></td>
-            <td rowspan="4" style="width: 10%; padding: 2.5pt 2pt; text-align: center;" valign="middle">
+            <td rowspan="3" style="width: 10%; padding: 2.5pt 2pt; text-align: center;" valign="middle">
                 <span class="b" style="font-size: 5pt;">FOTO</span>
             </td>
         </tr>
@@ -92,14 +92,14 @@
         </tr>
         <!-- Row 3 -->
         <tr>
-            <td colspan="2" rowspan="2" valign="top" style="padding: 2.5pt 2pt;">
+            <td colspan="2" valign="top" style="padding: 2.5pt 2pt;">
                 <div class="lbl">NOMBRE Y DIRECCIÓN DEL PLANTEL</div>
                 <div class="v">{{ boleta.nombre_plantel }}</div>
                 {% if boleta.direccion_plantel %}
                 <div style="font-size: 4pt; font-weight: bold; color: #444; margin-top: 1pt;">{{ boleta.direccion_plantel }}</div>
                 {% endif %}
             </td>
-            <td colspan="3" rowspan="2" valign="top" style="padding: 2.5pt 2pt;">
+            <td colspan="3" valign="top" style="padding: 2.5pt 2pt;">
                 <div class="lbl">NOMBRE Y DIRECCIÓN DEL PADRE O REPRESENTANTE</div>
                 <div class="v" style="margin-top: 1pt;">{{ boleta.alumno.nombre_representante }}</div>
             </td>
@@ -108,16 +108,6 @@
                 <div class="v">{{ boleta.anio_escolar }}</div>
             </td>
         </tr>
-        <!-- Row 4 -->
-        <tr>
-            <td colspan="3" valign="top" style="padding: 4pt 3pt;">
-                <div class="lbl" style="font-size: 5pt; color: #333;">INASISTENCIAS DURANTE EL AÑO</div>
-                <div class="v" style="font-size: 9pt; font-weight: bold; margin-top: 4pt; margin-bottom: 2pt;">
-                    LAPSO 1: <span class="b" style="font-size: 10pt; color: #000;">{{ boleta.inasistencias_lapso_1 or 0 }}</span> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; 
-                    LAPSO 2: <span class="b" style="font-size: 10pt; color: #000;">{{ boleta.inasistencias_lapso_2 or 0 }}</span> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; 
-                    LAPSO 3: <span class="b" style="font-size: 10pt; color: #000;">{{ boleta.inasistencias_lapso_3 or 0 }}</span>
-                </div>
-            </td>
         </tr>
     </table>
 
@@ -209,6 +199,27 @@
                     {% if boleta.hasta_lapso >= 3 %}
                         {{ boleta.medias_globales if boleta.medias_globales is not none else '' }}
                     {% endif %}
+                </td>
+                <td class="gc"></td>
+                <td class="gc" colspan="2"></td>
+            </tr>
+            <tr class="bg">
+                <td class="mc r b">INASISTENCIAS</td>
+                <!-- Lapso 1 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.inasistencias_lapso_1 or 0 }}</td>
+                
+                <!-- Lapso 2 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.inasistencias_lapso_2 or 0 }}</td>
+
+                <!-- Lapso 3 -->
+                <td class="gc" colspan="4"></td>
+                <td class="gc b">{{ boleta.inasistencias_lapso_3 or 0 }}</td>
+
+                <!-- Definitiva Final -->
+                <td class="gc b">
+                    {{ (boleta.inasistencias_lapso_1 or 0) + (boleta.inasistencias_lapso_2 or 0) + (boleta.inasistencias_lapso_3 or 0) }}
                 </td>
                 <td class="gc"></td>
                 <td class="gc" colspan="2"></td>
