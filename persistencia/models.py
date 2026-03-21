@@ -12,6 +12,16 @@ class Tarea(Base):
     completada = Column(Boolean, default=False)
 
 
+class Seccion(Base):
+    __tablename__ = "secciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    grado = Column(Integer, nullable=False)
+    letra = Column(String, nullable=False)
+    modalidad = Column(String, default="Media General")
+    anio_escolar = Column(String, nullable=True)
+
+
 class Alumno(Base):
     __tablename__ = "alumnos"
 
@@ -24,10 +34,13 @@ class Alumno(Base):
     lugar_nacimiento = Column(String, nullable=True)
     estado_nacimiento = Column(String, nullable=True)
     nombre_representante = Column(String, nullable=True)
+    correo_representante = Column(String, nullable=True)
     direccion_representante = Column(String, nullable=True)
+    correo_estudiante = Column(String, nullable=True)
     grado = Column(Integer, nullable=True) # Grado actual
     seccion = Column(String, nullable=True) # Sección actual
     numero_lista = Column(Integer, nullable=True)
+    modalidad = Column(String, default="Media General")
 
     boletas = relationship("Boleta", back_populates="alumno", cascade="all, delete-orphan")
     calificaciones = relationship("Calificacion", back_populates="alumno", cascade="all, delete-orphan")
@@ -40,6 +53,7 @@ class Materia(Base):
     nombre = Column(String, nullable=False)
     grado = Column(Integer, nullable=False, index=True)
     es_numerica = Column(Boolean, default=True)
+    modalidad = Column(String, default="Media General")
 
     calificaciones = relationship("Calificacion", back_populates="materia")
 
@@ -60,10 +74,17 @@ class Boleta(Base):
     media_lapso_2 = Column(Float, nullable=True)
     media_lapso_3 = Column(Float, nullable=True)
     medias_globales = Column(Float, nullable=True)
+
+    # Inasistencias
+    inasistencias_lapso_1 = Column(Integer, default=0)
+    inasistencias_lapso_2 = Column(Integer, default=0)
+    inasistencias_lapso_3 = Column(Integer, default=0)
+
     media_seccion = Column(Float, nullable=True)
     profesor = Column(String, nullable=True)
     nombre_plantel = Column(String, nullable=True)
     direccion_plantel = Column(String, nullable=True)
+    modalidad = Column(String, default="Media General")
     created_at = Column(DateTime, server_default=func.now())
 
     alumno = relationship("Alumno", back_populates="boletas")

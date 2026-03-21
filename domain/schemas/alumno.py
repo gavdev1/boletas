@@ -12,10 +12,13 @@ class AlumnoBase(BaseModel):
     lugar_nacimiento: Optional[str] = None
     estado_nacimiento: Optional[str] = None
     nombre_representante: Optional[str] = None
+    correo_representante: Optional[str] = None
     direccion_representante: Optional[str] = None
+    correo_estudiante: Optional[str] = None
     grado: Optional[int] = None
     seccion: Optional[str] = None
     numero_lista: Optional[int] = None
+    modalidad: Optional[str] = "Media General"
 
 
 class AlumnoCreate(AlumnoBase):
@@ -32,6 +35,7 @@ class AlumnoUpdate(BaseModel):
     estado_nacimiento: Optional[str] = None
     nombre_representante: Optional[str] = None
     direccion_representante: Optional[str] = None
+    modalidad: Optional[str] = None
 
 
 class AlumnoResponse(AlumnoBase):

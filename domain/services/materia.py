@@ -20,13 +20,11 @@ class MateriaService:
             return MateriaResponse.model_validate(db_materia)
         return None
 
-    def listar_materias(self, skip: int = 0, limit: int = 100) -> List[MateriaResponse]:
-        db_materias = self.repository.get_all(skip=skip, limit=limit)
+    def listar_materias(self, skip: int = 0, limit: int = 100, grado: Optional[int] = None, modalidad: Optional[str] = None) -> List[MateriaResponse]:
+        db_materias = self.repository.get_all(skip=skip, limit=limit, grado=grado, modalidad=modalidad)
         return [MateriaResponse.model_validate(m) for m in db_materias]
 
-    def listar_materias_por_grado(self, grado: int) -> List[MateriaResponse]:
-        db_materias = self.repository.get_by_grado(grado)
-        return [MateriaResponse.model_validate(m) for m in db_materias]
+    # Eliminado listar_materias_por_grado, usamos listar_materias con kwargs
 
     def actualizar_materia(self, materia_id: int, materia_in: MateriaUpdate) -> Optional[MateriaResponse]:
         db_materia = self.repository.update(materia_id, materia_in)

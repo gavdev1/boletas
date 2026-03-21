@@ -20,6 +20,11 @@ class BoletaBase(BaseModel):
     profesor: Optional[str] = None
     nombre_plantel: Optional[str] = None
     direccion_plantel: Optional[str] = None
+    modalidad: Optional[str] = "Media General"
+    
+    inasistencias_lapso_1: Optional[int] = 0
+    inasistencias_lapso_2: Optional[int] = 0
+    inasistencias_lapso_3: Optional[int] = 0
 
 
 class BoletaCreate(BoletaBase):

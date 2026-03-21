@@ -14,11 +14,7 @@ class MateriaRepository:
         return self.session.scalars(stmt).first() or 0
 
     def create(self, materia_in: MateriaCreate) -> Materia:
-        db_materia = Materia(
-            nombre=materia_in.nombre,
-            grado=materia_in.grado,
-            es_numerica=materia_in.es_numerica,
-        )
+        db_materia = Materia(**materia_in.model_dump(exclude_unset=True))
         self.session.add(db_materia)
         self.session.commit()
         self.session.refresh(db_materia)
@@ -32,8 +28,14 @@ class MateriaRepository:
         stmt = select(Materia).where(Materia.grado == grado)
         return list(self.session.scalars(stmt).all())
 
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[Materia]:
-        stmt = select(Materia).offset(skip).limit(limit)
+    def get_all(self, skip: int = 0, limit: int = 100, grado: Optional[int] = None, modalidad: Optional[str] = None) -> List[Materia]:
+        stmt = select(Materia)
+        if grado is not None:
+            stmt = stmt.where(Materia.grado == grado)
+        if modalidad is not None:
+            stmt = stmt.where(Materia.modalidad == modalidad)
+            
+        stmt = stmt.offset(skip).limit(limit)
         return list(self.session.scalars(stmt).all())
 
     def update(self, materia_id: int, materia_in: MateriaUpdate) -> Optional[Materia]:

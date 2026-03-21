@@ -30,7 +30,11 @@ class BoletaService:
             config = self.config_repo.get_config()
             alumno = self.alumno_repo.get_by_id(boleta_in.alumno_id)
             
-            print(f"DEBUG: Alumno encontrado - id: {alumno.id if alumno else 'None'}, grado: {alumno.grado if alumno else 'None'}, seccion: '{alumno.seccion if alumno else 'None'}'")
+            from fastapi import HTTPException
+            if not alumno:
+                raise HTTPException(status_code=404, detail=f"El Alumno no fue encontrado en la base de datos (ID inválido)")
+                
+            print(f"DEBUG: Alumno encontrado - id: {alumno.id}, grado: {alumno.grado}, seccion: '{alumno.seccion}'")
             
             # Convertir a dicc para manipulacion interna (campos calculados)
             data = boleta_in.model_dump()
@@ -47,6 +51,7 @@ class BoletaService:
                 if data.get("grado") is None: data["grado"] = alumno.grado if alumno.grado else 1
                 if data.get("seccion") is None: data["seccion"] = alumno.seccion if alumno.seccion else "A"
                 if data.get("numero_lista") is None: data["numero_lista"] = alumno.numero_lista
+                if data.get("modalidad") is None: data["modalidad"] = getattr(alumno, "modalidad", "Media General")
                 
                 # ACTUALIZAR ALUMNO si tiene valores None
                 needs_update = False
@@ -74,12 +79,16 @@ class BoletaService:
                 data["alumno_id"], data["anio_escolar"]
             )
             
+            # Filtrar calificaciones según modalidad de la boleta
+            boleta_mod = data.get("modalidad", "Media General")
+            calificaciones_db = [c for c in calificaciones_db if c.materia and c.materia.modalidad in [boleta_mod, "Ambas", "Todas"]]
+            
             # 6. Calcular automatismos individuales (definitivas, etc)
             self._calcular_automatismos_db(data, calificaciones_db)
             
             # 7. NUEVO: Calcular Medias de la Sección (General y por Materia)
             medias_materia = self._calcular_medias_seccion_por_materia(
-                data["grado"], data["seccion"], data["anio_escolar"], data.get("hasta_lapso") or 3
+                data["grado"], data["seccion"], data.get("modalidad", "Media General"), data["anio_escolar"], data.get("hasta_lapso") or 3
             )
             
             # El promedio global de la sección es el promedio de todas las medias por materia
@@ -166,13 +175,13 @@ class BoletaService:
         if materias_numericas_count > 0:
             data["medias_globales"] = round(total_def_final / materias_numericas_count, 2)
 
-    def _calcular_medias_seccion_por_materia(self, grado: int, seccion: str, anio: str, hasta_lapso: int) -> dict:
-        """Calcula el promedio de la sección materia por materia."""
-        print(f"DEBUG: _calcular_medias_seccion_por_materia llamado con grado={grado}, seccion={seccion}, anio={anio}, hasta_lapso={hasta_lapso}")
+    def _calcular_medias_seccion_por_materia(self, grado: int, seccion: str, modalidad: str, anio: str, hasta_lapso: int) -> dict:
+        """Calcula el promedio de la sección materia por materia filtrando por modalidad."""
+        print(f"DEBUG: _calcular_medias_seccion_por_materia llamado con grado={grado}, seccion={seccion}, modalidad={modalidad}, anio={anio}, hasta_lapso={hasta_lapso}")
         
         # 1. Alumnos de la sección
         alumnos = self.alumno_repo.session.query(Alumno).filter(
-            Alumno.grado == grado, Alumno.seccion == seccion
+            Alumno.grado == grado, Alumno.seccion == seccion, Alumno.modalidad == modalidad
         ).all()
         
         print(f"DEBUG: Alumnos encontrados en sección {grado}-{seccion}: {len(alumnos)}")
@@ -249,9 +258,13 @@ class BoletaService:
             db_boleta.alumno_id, db_boleta.anio_escolar
         )
         
+        # Filtrar calificaciones según modalidad de la boleta
+        boleta_mod = db_boleta.modalidad or "Media General"
+        califs_db = [c for c in califs_db if c.materia and c.materia.modalidad in [boleta_mod, "Ambas", "Todas"]]
+        
         # Calcular medias por materia para inyectar en la respuesta
         medias_materia = self._calcular_medias_seccion_por_materia(
-            db_boleta.grado, db_boleta.seccion, db_boleta.anio_escolar, db_boleta.hasta_lapso or 3
+            db_boleta.grado, db_boleta.seccion, db_boleta.modalidad or "Media General", db_boleta.anio_escolar, db_boleta.hasta_lapso or 3
         )
         
         calificaciones_response = []

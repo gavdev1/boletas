@@ -17,7 +17,7 @@ class CalificacionRepository:
         return db_calif
 
     def get_by_id(self, calif_id: int) -> Optional[Calificacion]:
-        stmt = select(Calificacion).options(joinedload(Calificacion.materia)).where(Calificacion.id == calif_id)
+        stmt = select(Calificacion).options(joinedload(Calificacion.materia)).where(Calificacion.id == calif_id).execution_options(populate_existing=True)
         return self.session.scalars(stmt).first()
 
     def get_by_alumno_materia_year(self, alumno_id: int, materia_id: int, anio_escolar: str) -> Optional[Calificacion]:

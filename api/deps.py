@@ -9,6 +9,7 @@ from persistencia.repositories.materia import MateriaRepository
 from persistencia.repositories.calificacion import CalificacionRepository
 from persistencia.repositories.boleta import BoletaRepository
 from persistencia.repositories.configuracion import ConfiguracionRepository
+from persistencia.repositories.seccion import SeccionRepository
 
 from domain.services.tarea import TareaService
 from domain.services.alumno import AlumnoService
@@ -17,6 +18,7 @@ from domain.services.calificacion import CalificacionService
 from domain.services.boleta import BoletaService
 from domain.services.pdf import PDFService
 from domain.services.configuracion import ConfiguracionService
+from domain.services.seccion import SeccionService
 
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -77,8 +79,11 @@ def get_tarea_service(repository: TareaRepository = Depends(get_tarea_repository
 def get_alumno_repository(db: Session = Depends(get_db)) -> AlumnoRepository:
     return AlumnoRepository(db)
 
-def get_alumno_service(repository: AlumnoRepository = Depends(get_alumno_repository)) -> AlumnoService:
-    return AlumnoService(repository)
+def get_alumno_service(
+    repository: AlumnoRepository = Depends(get_alumno_repository),
+    seccion_repo: SeccionRepository = Depends(lambda db=Depends(get_db): SeccionRepository(db))
+) -> AlumnoService:
+    return AlumnoService(repository, seccion_repo)
 
 
 # --- Materias ---
@@ -119,3 +124,11 @@ def get_boleta_service(
     alumno_repo: AlumnoRepository = Depends(get_alumno_repository)
 ) -> BoletaService:
     return BoletaService(repository, calif_repo, config_repo, alumno_repo)
+
+# --- Secciones ---
+def get_seccion_repository(db: Session = Depends(get_db)) -> SeccionRepository:
+    return SeccionRepository(db)
+
+def get_seccion_service(repository: SeccionRepository = Depends(get_seccion_repository)) -> SeccionService:
+    return SeccionService(repository)
+

@@ -1,16 +1,24 @@
 from typing import List, Optional
 from domain.schemas.alumno import AlumnoCreate, AlumnoUpdate, AlumnoResponse
 from persistencia.repositories.alumno import AlumnoRepository
+from persistencia.repositories.seccion import SeccionRepository
+from fastapi import HTTPException
 
 
 class AlumnoService:
-    def __init__(self, repository: AlumnoRepository):
+    def __init__(self, repository: AlumnoRepository, seccion_repo: SeccionRepository):
         self.repository = repository
+        self.seccion_repo = seccion_repo
 
     def contar_alumnos(self) -> int:
         return self.repository.count()
 
     def crear_alumno(self, alumno_in: AlumnoCreate) -> AlumnoResponse:
+        if alumno_in.grado is not None and alumno_in.seccion is not None:
+            mod = getattr(alumno_in, "modalidad", "Media General")
+            if not self.seccion_repo.get_by_unique_fields(alumno_in.grado, alumno_in.seccion, mod):
+                raise HTTPException(status_code=400, detail="La sección especificada no ha sido creada para este grado y modalidad.")
+                
         db_alumno = self.repository.create(alumno_in)
         return AlumnoResponse.model_validate(db_alumno)
 
@@ -31,6 +39,18 @@ class AlumnoService:
         return [AlumnoResponse.model_validate(a) for a in db_alumnos]
 
     def actualizar_alumno(self, alumno_id: int, alumno_in: AlumnoUpdate) -> Optional[AlumnoResponse]:
+        db_alumno = self.repository.get_by_id(alumno_id)
+        if not db_alumno:
+            return None
+            
+        grado = alumno_in.grado if alumno_in.grado is not None else db_alumno.grado
+        seccion = alumno_in.seccion if alumno_in.seccion is not None else db_alumno.seccion
+        mod = getattr(alumno_in, "modalidad", None) or getattr(db_alumno, "modalidad", "Media General")
+        
+        if grado is not None and seccion is not None:
+            if not self.seccion_repo.get_by_unique_fields(grado, seccion, mod):
+                raise HTTPException(status_code=400, detail="La sección especificada no ha sido creada para este grado y modalidad.")
+                
         db_alumno = self.repository.update(alumno_id, alumno_in)
         if db_alumno:
             return AlumnoResponse.model_validate(db_alumno)

@@ -6,6 +6,7 @@ class MateriaBase(BaseModel):
     nombre: str
     grado: int
     es_numerica: bool = True
+    modalidad: Optional[str] = "Media General"
 
 
 class MateriaCreate(MateriaBase):

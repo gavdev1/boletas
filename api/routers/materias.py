@@ -19,13 +19,12 @@ def create_materia(
 @router.get("/", response_model=List[MateriaResponse])
 def read_materias(
     grado: int | None = Query(None, description="Filtrar por grado"),
+    modalidad: str | None = Query(None, description="Filtrar por modalidad"),
     skip: int = 0,
     limit: int = 100,
     service: MateriaService = Depends(get_materia_service),
 ) -> List[MateriaResponse]:
-    if grado is not None:
-        return service.listar_materias_por_grado(grado)
-    return service.listar_materias(skip=skip, limit=limit)
+    return service.listar_materias(skip=skip, limit=limit, grado=grado, modalidad=modalidad)
 
 
 @router.get("/{materia_id}", response_model=MateriaResponse)

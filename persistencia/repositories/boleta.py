@@ -29,6 +29,7 @@ class BoletaRepository:
             .options(
                 joinedload(Boleta.alumno),
             )
+            .execution_options(populate_existing=True)
         )
         return self.session.scalars(stmt).first()
 
