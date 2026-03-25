@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from typing import List, Optional
-from persistencia.models import Calificacion
+from persistencia.models import Calificacion, Alumno
 from domain.schemas.calificacion import CalificacionCreate, CalificacionUpdate
 
 
@@ -32,6 +32,20 @@ class CalificacionRepository:
         stmt = select(Calificacion).options(joinedload(Calificacion.materia)).where(
             Calificacion.alumno_id == alumno_id,
             Calificacion.anio_escolar == anio_escolar
+        )
+        return list(self.session.scalars(stmt).all())
+
+    def get_all_by_section_and_year(self, grado: int, seccion: str, anio_escolar: str) -> list[Calificacion]:
+        """Fetches all qualifications for all students in a specific section and year."""
+        stmt = (
+            select(Calificacion)
+            .join(Alumno, Calificacion.alumno_id == Alumno.id)
+            .options(joinedload(Calificacion.materia))
+            .where(
+                Alumno.grado == grado,
+                Alumno.seccion == seccion,
+                Calificacion.anio_escolar == anio_escolar
+            )
         )
         return list(self.session.scalars(stmt).all())
 

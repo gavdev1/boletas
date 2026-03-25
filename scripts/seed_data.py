@@ -56,7 +56,9 @@ def seed_system():
     for data in alumnos_data:
         data.update({"grado": 1, "seccion": "A"})
         al = safe_post(f"{BASE_URL}/alumnos/", data, headers)
-        if al: alumnos_ids.append(al["id"])
+        if al: 
+            alumnos_ids.append(al["id"])
+            print(f"DEBUG: Alumno creado con ID {al['id']}")
     print(f"✅ {len(alumnos_ids)} Alumnos inscritos en 1ero 'A'.")
 
     # 5. Cargar Notas (Lapsos 1, 2 y 3)

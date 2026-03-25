@@ -30,47 +30,18 @@ class BoletaService:
             config = self.config_repo.get_config()
             alumno = self.alumno_repo.get_by_id(boleta_in.alumno_id)
             
-            from fastapi import HTTPException
             if not alumno:
+                from fastapi import HTTPException
                 raise HTTPException(status_code=404, detail=f"El Alumno no fue encontrado en la base de datos (ID inválido)")
                 
-            print(f"DEBUG: Alumno encontrado - id: {alumno.id}, grado: {alumno.grado}, seccion: '{alumno.seccion}'")
-            
             # Convertir a dicc para manipulacion interna (campos calculados)
             data = boleta_in.model_dump()
 
-            # 2. Llenar campos faltantes desde Configuración
-            if config:
-                if not data.get("anio_escolar"): data["anio_escolar"] = config.anio_escolar_actual
-                if not data.get("nombre_plantel"): data["nombre_plantel"] = config.nombre_plantel
-                if not data.get("direccion_plantel"): data["direccion_plantel"] = config.direccion_plantel
-                if not data.get("profesor"): data["profesor"] = config.profesor_guia_default
-                
-            # 3. Llenar campos faltantes desde Alumno (grado/seccion/lista)
-            if alumno:
-                if data.get("grado") is None: data["grado"] = alumno.grado if alumno.grado else 1
-                if data.get("seccion") is None: data["seccion"] = alumno.seccion if alumno.seccion else "A"
-                if data.get("numero_lista") is None: data["numero_lista"] = alumno.numero_lista
-                if data.get("modalidad") is None: data["modalidad"] = getattr(alumno, "modalidad", "Media General")
-                
-                # ACTUALIZAR ALUMNO si tiene valores None
-                needs_update = False
-                if alumno.grado is None and data.get("grado") is not None:
-                    alumno.grado = data["grado"]
-                    needs_update = True
-                if alumno.seccion is None and data.get("seccion") is not None:
-                    alumno.seccion = data["seccion"]
-                    needs_update = True
-                    
-                if needs_update:
-                    self.alumno_repo.session.commit()
-                    print(f"DEBUG: Alumno {alumno.id} actualizado - grado: {alumno.grado}, seccion: '{alumno.seccion}'")
+            # 2. Llenar campos faltantes desde Configuración y Alumno
+            self._populate_from_config_and_alumno(data, config, alumno)
             
-            # 4. Fallback final para evitar IntegrityError
-            if data.get("grado") is None: data["grado"] = 1
-            if data.get("seccion") is None: data["seccion"] = "A"
-            if not data.get("anio_escolar"): data["anio_escolar"] = "2024-2025"
-            if not data.get("tipo_evaluacion"): data["tipo_evaluacion"] = "Final de Lapso"
+            # 3. Fallback final para evitar IntegrityError
+            self._ensure_required_fields(data)
             
             print(f"DEBUG: Valores finales para crear boleta - grado: {data['grado']}, seccion: '{data['seccion']}', anio_escolar: '{data['anio_escolar']}'")
 
@@ -133,6 +104,38 @@ class BoletaService:
             traceback.print_exc()
             raise e
 
+    def _populate_from_config_and_alumno(self, data: dict, config, alumno):
+        if config:
+            if not data.get("anio_escolar"): data["anio_escolar"] = config.anio_escolar_actual
+            if not data.get("nombre_plantel"): data["nombre_plantel"] = config.nombre_plantel
+            if not data.get("direccion_plantel"): data["direccion_plantel"] = config.direccion_plantel
+            if not data.get("profesor"): data["profesor"] = config.profesor_guia_default
+            
+        if alumno:
+            if data.get("grado") is None: data["grado"] = alumno.grado if alumno.grado else 1
+            if data.get("seccion") is None: data["seccion"] = alumno.seccion if alumno.seccion else "A"
+            if data.get("numero_lista") is None: data["numero_lista"] = alumno.numero_lista
+            if data.get("modalidad") is None: data["modalidad"] = getattr(alumno, "modalidad", "Media General")
+            
+            # ACTUALIZAR ALUMNO si tiene valores None
+            needs_update = False
+            if alumno.grado is None and data.get("grado") is not None:
+                alumno.grado = data["grado"]
+                needs_update = True
+            if alumno.seccion is None and data.get("seccion") is not None:
+                alumno.seccion = data["seccion"]
+                needs_update = True
+                
+            if needs_update:
+                self.alumno_repo.session.commit()
+                print(f"DEBUG: Alumno {alumno.id} actualizado - grado: {alumno.grado}, seccion: '{alumno.seccion}'")
+
+    def _ensure_required_fields(self, data: dict):
+        if data.get("grado") is None: data["grado"] = 1
+        if data.get("seccion") is None: data["seccion"] = "A"
+        if not data.get("anio_escolar"): data["anio_escolar"] = "2024-2025"
+        if not data.get("tipo_evaluacion"): data["tipo_evaluacion"] = "Final de Lapso"
+
     def _calcular_automatismos_db(self, data: dict, calificaciones: List):
         if not calificaciones:
             return
@@ -176,61 +179,43 @@ class BoletaService:
             data["medias_globales"] = round(total_def_final / materias_numericas_count, 2)
 
     def _calcular_medias_seccion_por_materia(self, grado: int, seccion: str, modalidad: str, anio: str, hasta_lapso: int) -> dict:
-        """Calcula el promedio de la sección materia por materia filtrando por modalidad."""
-        print(f"DEBUG: _calcular_medias_seccion_por_materia llamado con grado={grado}, seccion={seccion}, modalidad={modalidad}, anio={anio}, hasta_lapso={hasta_lapso}")
+        """Calcula el promedio de la sección materia por materia filtrando por modalidad (OPTIMIZADO)."""
+        print(f"DEBUG OPTIMIZADO: _calcular_medias_seccion_por_materia llamado con grado={grado}, seccion={seccion}, modalidad={modalidad}, anio={anio}, hasta_lapso={hasta_lapso}")
         
-        # 1. Alumnos de la sección
-        alumnos = self.alumno_repo.session.query(Alumno).filter(
-            Alumno.grado == grado, Alumno.seccion == seccion, Alumno.modalidad == modalidad
-        ).all()
+        # 1. Obtener TODAS las calificaciones de la sección en una sola consulta
+        calificaciones_seccion = self.calif_repo.get_all_by_section_and_year(grado, seccion, anio)
         
-        print(f"DEBUG: Alumnos encontrados en sección {grado}-{seccion}: {len(alumnos)}")
-        if not alumnos: 
-            print(f"DEBUG: No se encontraron alumnos para calcular media de sección")
+        print(f"DEBUG: Calificaciones encontradas en sección {grado}-{seccion}: {len(calificaciones_seccion)}")
+        if not calificaciones_seccion: 
             return {}
         
         # 2. Mapa de sumas por materia {materia_id: [notas]}
         mapa_notas = {}
-        print(f"DEBUG: Procesando {len(alumnos)} alumnos de la sección")
         
-        for al in alumnos:
-            print(f"DEBUG: Procesando alumno {al.id} - {al.nombre if hasattr(al, 'nombre') else 'N/A'}")
-            califs = self.calif_repo.get_all_by_alumno_year(al.id, anio)
-            print(f"DEBUG: Alumno {al.id} tiene {len(califs)} calificaciones")
+        for c in calificaciones_seccion:
+            # Filtrar por modalidad del alumno si es necesario (ya viene filtrado por calif_repo.materia.modalidad en teoría, 
+            # pero mejor asegurar si la boleta pide una modalidad específica)
+            if not c.materia or not c.materia.es_numerica:
+                continue
+                
+            # Filtrar modalidad
+            if modalidad and c.materia.modalidad not in [modalidad, "Ambas", "Todas"]:
+                continue
+                    
+            # Determinamos que nota usar segun hasta_lapso
+            nota = None
+            if hasta_lapso == 1: nota = c.lapso_1_def
+            elif hasta_lapso == 2: nota = c.lapso_2_def
+            else: nota = c.def_final # Lapso 3 o Final
             
-            for c in califs:
-                print(f"DEBUG: Calificación - materia_id: {c.materia_id}, es_numerica: {c.materia.es_numerica if c.materia else 'None'}, lapso_1: {c.lapso_1_def}, lapso_2: {c.lapso_2_def}, lapso_3: {c.lapso_3_def}, def_final: {c.def_final}")
-                
-                if not c.materia: 
-                    print(f"DEBUG: Ignorando materia {c.materia_id} - no tiene materia asociada")
-                    continue
-                    
-                if not c.materia.es_numerica: 
-                    print(f"DEBUG: Ignorando materia {c.materia_id} - no es numérica (es_numerica: {c.materia.es_numerica})")
-                    continue
-                    
-                # Determinamos que nota usar segun hasta_lapso
-                nota = None
-                if hasta_lapso == 1: nota = c.lapso_1_def
-                elif hasta_lapso == 2: nota = c.lapso_2_def
-                else: nota = c.def_final # Lapso 3 o Final
-                
-                print(f"DEBUG: Nota seleccionada para materia {c.materia_id}: {nota}")
-                
-                if nota is not None:
-                    if c.materia_id not in mapa_notas: mapa_notas[c.materia_id] = []
-                    mapa_notas[c.materia_id].append(nota)
-                    print(f"DEBUG: Agregada nota {nota} a materia {c.materia_id}")
-                else:
-                    print(f"DEBUG: Ignorando materia {c.materia_id} - nota es None")
+            if nota is not None:
+                if c.materia_id not in mapa_notas: mapa_notas[c.materia_id] = []
+                mapa_notas[c.materia_id].append(nota)
         
         # 3. Calcular promedios
-        resultados = {}
-        for m_id, notas in mapa_notas.items():
-            if notas:
-                resultados[m_id] = round(sum(notas) / len(notas), 2)
+        resultados = {m_id: round(sum(notas) / len(notas), 2) for m_id, notas in mapa_notas.items() if notas}
         
-        print(f"DEBUG: _calcular_medias_seccion_por_materia - alumnos encontrados: {len(alumnos)}, mapa_notas: {mapa_notas}, resultados: {resultados}")
+        print(f"DEBUG: _calcular_medias_seccion_por_materia (OPTIMIZADO) - resultados: {resultados}")
         return resultados
 
     def obtener_boleta(self, boleta_id: int) -> Optional[BoletaResponse]:

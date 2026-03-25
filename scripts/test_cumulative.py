@@ -12,8 +12,8 @@ def test_cumulative_pdf():
     token = resp.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
     
-    # 2. Get Alumno ID 1
-    alumno_id = 1
+    # ID del alumno a probar (debe existir en la DB)
+    alumno_id = 6
     
     # 3. Create Boleta for Lapso 1 ONLY
     print("--- 📄 Generando Boleta Lapso 1 ---")
@@ -24,6 +24,9 @@ def test_cumulative_pdf():
         "observaciones": "Solo debe verse el lapso 1."
     }
     resp = requests.post(f"{BASE_URL}/boletas/", json=boleta_data, headers=headers)
+    if resp.status_code != 201:
+        print(f"❌ Error creando boleta L1 ({resp.status_code}): {resp.text}")
+        return
     boleta_l1 = resp.json()
     print(f"✅ Boleta L1 Creada: ID {boleta_l1['id']}")
     

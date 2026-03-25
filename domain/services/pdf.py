@@ -27,7 +27,15 @@ class PDFService:
         template = self.jinja_env.get_template("boleta_pdf.html")
 
         # 2. Renderizar HTML con los datos
-        html_content = template.render(boleta=boleta)
+        # Pass template_dir as base_path for images
+        import sys
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+            template_dir = os.path.join(base_path, "domain", "templates")
+        else:
+            template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+            
+        html_content = template.render(boleta=boleta, base_path=template_dir)
 
         # 3. Crear buffer en memoria para el PDF
         pdf_buffer = BytesIO()
