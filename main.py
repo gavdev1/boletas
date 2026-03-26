@@ -42,6 +42,7 @@ app.include_router(boletas.router, prefix="/boletas", tags=["boletas"], dependen
 app.include_router(configuracion.router, prefix="/configuracion", tags=["configuracion"], dependencies=[Depends(get_current_user)])
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"], dependencies=[Depends(get_current_user)])
 app.include_router(secciones.router, prefix="/secciones", tags=["secciones"], dependencies=[Depends(get_current_user)])
+app.include_router(tareas.router, prefix="/tareas", tags=["tareas"], dependencies=[Depends(get_current_user)])
 
 @app.get("/")
 def read_root():
