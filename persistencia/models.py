@@ -41,6 +41,7 @@ class Alumno(Base):
     seccion = Column(String, nullable=True) # Sección actual
     numero_lista = Column(Integer, nullable=True)
     modalidad = Column(String, default="Media General")
+    telefono_representante = Column(String, nullable=True)
 
     boletas = relationship("Boleta", back_populates="alumno", cascade="all, delete-orphan")
     calificaciones = relationship("Calificacion", back_populates="alumno", cascade="all, delete-orphan")
