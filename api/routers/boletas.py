@@ -10,6 +10,30 @@ from api.deps import get_boleta_service, get_pdf_service
 router = APIRouter()
 
 
+@router.get("/bulk/pdf")
+def get_bulk_boletas_pdf(
+    grado: int = Query(..., description="Grado de la sección"),
+    seccion: str = Query(..., description="Letra de la sección"),
+    anio_escolar: str = Query(..., description="Año escolar"),
+    tipo_evaluacion: str = Query(..., description="Tipo de evaluación"),
+    service: BoletaService = Depends(get_boleta_service),
+    pdf_service: PDFService = Depends(get_pdf_service),
+):
+    boletas = service.obtener_boletas_bulk(grado, seccion, anio_escolar, tipo_evaluacion)
+    if not boletas:
+        raise HTTPException(status_code=404, detail="No se encontraron boletas para los criterios especificados")
+    
+    pdf_buffer = pdf_service.generar_bulk_boletas_pdf(boletas)
+    
+    filename = f"boletas_{grado}{seccion}_{anio_escolar.replace('/', '-')}.pdf"
+    
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
 @router.get("/{boleta_id}/pdf")
 def get_boleta_pdf(
     boleta_id: int,

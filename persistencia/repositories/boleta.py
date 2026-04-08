@@ -55,6 +55,8 @@ class BoletaRepository:
         alumno_id: Optional[int] = None,
         anio_escolar: Optional[str] = None,
         tipo_evaluacion: Optional[str] = None,
+        grado: Optional[int] = None,
+        seccion: Optional[str] = None,
     ) -> List[Boleta]:
         stmt = select(Boleta)
 
@@ -64,6 +66,10 @@ class BoletaRepository:
             stmt = stmt.where(Boleta.anio_escolar == anio_escolar)
         if tipo_evaluacion:
             stmt = stmt.where(Boleta.tipo_evaluacion == tipo_evaluacion)
+        if grado:
+            stmt = stmt.where(Boleta.grado == grado)
+        if seccion:
+            stmt = stmt.where(Boleta.seccion == seccion)
 
         stmt = stmt.offset(skip).limit(limit)
         return list(self.session.scalars(stmt).all())

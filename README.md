@@ -63,6 +63,27 @@ Define los datos del plantel y el año escolar actual.
 
 ---
 
+## 📊 Dashboard y Estadísticas (`/dashboard`)
+
+Resumen dinámico del estado del sistema y la población escolar.
+
+- **GET `/dashboard/stats`**: Devuelve estadísticas globales.
+    - **Respuesta de ejemplo:**
+    ```json
+    {
+      "alumnos": {
+        "total": 150,
+        "presente": 120,
+        "egresado": 20,
+        "retirado": 10
+      },
+      "secciones": 6,
+      "materias": 45
+    }
+    ```
+
+---
+
 ## 🏫 Gestión de Secciones (`/secciones`)
 
 - **POST `/secciones/`**: Registra una nueva sección.
@@ -95,6 +116,7 @@ Define los datos del plantel y el año escolar actual.
       "fecha_nacimiento": "2012-05-15",
       "lugar_nacimiento": "Caracas",
       "estado_nacimiento": "Distrito Capital",
+      "municipio": "Libertador",
       "nombre_representante": "María de Bello",
       "correo_representante": "maria@ejemplo.com",
       "direccion_representante": "Av. Principal Los Mangos",
@@ -102,9 +124,11 @@ Define los datos del plantel y el año escolar actual.
       "grado": 1,
       "seccion": "A",
       "numero_lista": 1,
-      "modalidad": "Media General"
+      "modalidad": "Media General",
+      "status": "presente"
     }
     ```
+*Nota: El campo `status` puede ser `presente`, `egresado` o `retirado`.*
 - **GET `/alumnos/`**: Lista alumnos.
 - **GET `/alumnos/{id}`**: Detalle por ID.
 - **GET `/alumnos/cedula/{cedula}`**: Buscar por cédula.
@@ -151,6 +175,9 @@ Carga de notas simplificada. El servidor calcula promedios automáticamente.
 - **PUT `/calificaciones/{id}`**: Editar registro individual.
 - **DELETE `/calificaciones/{id}`**: Borrar nota.
 
+> [!IMPORTANT]
+> **Seguridad**: Solo se pueden registrar o modificar notas de alumnos con estatus `"presente"`. El sistema bloqueará automáticamente cualquier intento de cargar calificaciones a alumnos retirados o egresados.
+
 ---
 
 ## 📄 Boletas e Inteligencia de Negocio (`/boletas`)
@@ -180,8 +207,11 @@ Generación de reportes PDF con cálculos de promedios de sección automáticos.
     ```
     *Nota: `hasta_lapso` (1, 2 o 3) define qué columnas se llenarán en el reporte. El backend filtrará las calificaciones y aislará la métrica de promedios "media_seccion" dinámicamente según la `modalidad` enviada.*
 - **GET `/boletas/{id}/pdf`**: **Descarga directa del PDF**. 🖨️
+- **GET `/boletas/bulk/pdf`**: **Generación Masiva**. 🚀 
+    - Genera un único PDF con todas las boletas de una sección.
+    - **Query Params:** `grado`, `seccion`, `anio_escolar`, `tipo_evaluacion`.
 - **GET `/boletas/`**: Listado de todas las boletas creadas.
-- **GET `/boletas/{id}`**:JSON detallado con notas inyectadas.
+- **GET `/boletas/{id}`**: JSON detallado con notas inyectadas.
 - **DELETE `/boletas/{id}`**: Eliminar boleta.
 
 

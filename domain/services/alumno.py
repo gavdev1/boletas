@@ -13,6 +13,14 @@ class AlumnoService:
     def contar_alumnos(self) -> int:
         return self.repository.count()
 
+    def obtener_stats(self) -> dict:
+        return {
+            "total": self.repository.count(),
+            "presente": self.repository.count_by_status("presente"),
+            "egresado": self.repository.count_by_status("egresado"),
+            "retirado": self.repository.count_by_status("retirado"),
+        }
+
     def crear_alumno(self, alumno_in: AlumnoCreate) -> AlumnoResponse:
         if alumno_in.grado is not None and alumno_in.seccion is not None:
             mod = getattr(alumno_in, "modalidad", "Media General")

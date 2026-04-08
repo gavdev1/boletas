@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from domain.services.alumno import AlumnoService
+from domain.schemas.alumno import AlumnoStats
 from domain.services.materia import MateriaService
 from domain.services.boleta import BoletaService
 from api.deps import (
@@ -16,7 +17,7 @@ router = APIRouter()
 
 
 class DashboardStatsResponse(BaseModel):
-    total_alumnos: int
+    total_alumnos: AlumnoStats
     total_materias: int
     total_boletas: int
 
@@ -30,7 +31,7 @@ def get_dashboard_stats(
 ) -> DashboardStatsResponse:
     """Obtiene estadísticas para el dashboard."""
     return DashboardStatsResponse(
-        total_alumnos=alumno_service.contar_alumnos(),
+        total_alumnos=alumno_service.obtener_stats(),
         total_materias=materia_service.contar_materias(),
         total_boletas=boleta_service.contar_boletas(),
     )

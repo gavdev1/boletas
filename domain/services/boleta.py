@@ -273,6 +273,27 @@ class BoletaService:
         response.calificaciones = calificaciones_response
         return response
 
+    def obtener_boletas_bulk(self, grado: int, seccion: str, anio_escolar: str, tipo_evaluacion: str) -> List[BoletaResponse]:
+        """Recupera todas las boletas de una sección con sus calificaciones inyectadas."""
+        db_boletas = self.repository.get_all(
+            grado=grado, 
+            seccion=seccion, 
+            anio_escolar=anio_escolar, 
+            tipo_evaluacion=tipo_evaluacion,
+            limit=500 # Un límite razonable para una sección
+        )
+        
+        responses = []
+        for db_b in db_boletas:
+            # Reutilizamos la lógica de obtener_boleta pero de forma más eficiente
+            # Podríamos optimizar esto para no re-calcular medias_seccion en cada iteración,
+            # pero dado que el volumen de una sección es pequeño (<50 alumnos), es aceptable.
+            full_boleta = self.obtener_boleta(db_b.id)
+            if full_boleta:
+                responses.append(full_boleta)
+                
+        return responses
+
     def listar_boletas(self, skip: int = 0, limit: int = 100, **kwargs) -> List[BoletaListResponse]:
         db_boletas = self.repository.get_all(skip=skip, limit=limit, **kwargs)
         return [BoletaListResponse.model_validate(b) for b in db_boletas]

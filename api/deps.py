@@ -108,9 +108,10 @@ def get_calificacion_repository(db: Session = Depends(get_db)) -> CalificacionRe
 
 def get_calificacion_service(
     repository: CalificacionRepository = Depends(get_calificacion_repository),
-    config_repo: ConfiguracionRepository = Depends(get_configuracion_repository)
+    config_repo: ConfiguracionRepository = Depends(get_configuracion_repository),
+    alumno_repo: AlumnoRepository = Depends(get_alumno_repository)
 ) -> CalificacionService:
-    return CalificacionService(repository, config_repo)
+    return CalificacionService(repository, config_repo, alumno_repo)
 
 
 # --- Boletas ---

@@ -13,6 +13,10 @@ class AlumnoRepository:
         stmt = select(func.count()).select_from(Alumno)
         return self.session.scalars(stmt).first() or 0
 
+    def count_by_status(self, status: str) -> int:
+        stmt = select(func.count()).select_from(Alumno).where(Alumno.status == status)
+        return self.session.scalars(stmt).first() or 0
+
     def create(self, alumno_in: AlumnoCreate) -> Alumno:
         db_alumno = Alumno(**alumno_in.model_dump())
         self.session.add(db_alumno)

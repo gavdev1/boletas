@@ -2,12 +2,15 @@ from typing import List, Optional
 from domain.schemas.calificacion import CalificacionCreate, CalificacionUpdate, CalificacionResponse, LapsoNotaInput
 from persistencia.repositories.calificacion import CalificacionRepository
 from persistencia.repositories.configuracion import ConfiguracionRepository
+from persistencia.repositories.alumno import AlumnoRepository
+from fastapi import HTTPException
 
 
 class CalificacionService:
-    def __init__(self, repository: CalificacionRepository, config_repo: ConfiguracionRepository):
+    def __init__(self, repository: CalificacionRepository, config_repo: ConfiguracionRepository, alumno_repo: AlumnoRepository):
         self.repository = repository
         self.config_repo = config_repo
+        self.alumno_repo = alumno_repo
 
     def registrar_lapso_nota(self, input_data: LapsoNotaInput) -> CalificacionResponse:
         # 1. Obtener año escolar si no se provee
@@ -16,7 +19,14 @@ class CalificacionService:
             config = self.config_repo.get_config()
             anio_escolar = config.anio_escolar_actual if config else "2024-2025"
 
-        # 2. Buscar registro existente
+        # 2. Validar que el alumno exista y esté PRESENTE
+        alumno = self.alumno_repo.get_by_id(input_data.alumno_id)
+        if not alumno:
+            raise HTTPException(status_code=404, detail="Alumno no encontrado")
+        if alumno.status != "presente":
+            raise HTTPException(status_code=400, detail=f"Solo se pueden cargar notas a alumnos con estatus 'presente'. El alumno actual está '{alumno.status}'.")
+
+        # 3. Buscar registro existente
         existente = self.repository.get_by_alumno_materia_year(
             input_data.alumno_id, input_data.materia_id, anio_escolar
         )
@@ -65,6 +75,13 @@ class CalificacionService:
             config = self.config_repo.get_config()
             calif_in.anio_escolar = config.anio_escolar_actual if config else "2024-2025"
             
+        # Validar estatus
+        alumno = self.alumno_repo.get_by_id(calif_in.alumno_id)
+        if not alumno:
+            raise HTTPException(status_code=404, detail="Alumno no encontrado")
+        if alumno.status != "presente":
+            raise HTTPException(status_code=400, detail=f"Solo se pueden cargar notas a alumnos con estatus 'presente'. El alumno actual está '{alumno.status}'.")
+
         self._calcular_definitiva(calif_in)
         # Verificar si ya existe para actualizar o crear
         existente = self.repository.get_by_alumno_materia_year(

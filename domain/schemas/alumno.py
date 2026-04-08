@@ -11,6 +11,7 @@ class AlumnoBase(BaseModel):
     fecha_nacimiento: Optional[date] = None
     lugar_nacimiento: Optional[str] = None
     estado_nacimiento: Optional[str] = None
+    municipio: Optional[str] = None
     nombre_representante: Optional[str] = None
     telefono_representante: Optional[str] = None
     correo_representante: Optional[str] = None
@@ -20,6 +21,7 @@ class AlumnoBase(BaseModel):
     seccion: Optional[str] = None
     numero_lista: Optional[int] = None
     modalidad: Optional[str] = "Media General"
+    status: Optional[str] = "presente" # presente, egresado, retirado
 
 
 class AlumnoCreate(AlumnoBase):
@@ -34,10 +36,12 @@ class AlumnoUpdate(BaseModel):
     fecha_nacimiento: Optional[date] = None
     lugar_nacimiento: Optional[str] = None
     estado_nacimiento: Optional[str] = None
+    municipio: Optional[str] = None
     nombre_representante: Optional[str] = None
     telefono_representante: Optional[str] = None
     direccion_representante: Optional[str] = None
     modalidad: Optional[str] = None
+    status: Optional[str] = None
 
 
 class AlumnoResponse(AlumnoBase):
@@ -46,3 +50,10 @@ class AlumnoResponse(AlumnoBase):
     model_config = {
         "from_attributes": True
     }
+
+
+class AlumnoStats(BaseModel):
+    total: int
+    presente: int
+    egresado: int
+    retirado: int

@@ -78,11 +78,11 @@ def seed_system():
 
     # 5. Crear Alumnos
     alumnos_info = [
-        {"cedula": "V-30000001", "nombre": "Andrés", "apellido": "Bello", "numero_lista": 1, "grado": 1, "seccion": "A", "modalidad": "Media General", "lugar_nacimiento": "Caracas", "estado_nacimiento": "Distrito Capital"},
-        {"cedula": "V-30000002", "nombre": "Simón", "apellido": "Rodríguez", "numero_lista": 2, "grado": 1, "seccion": "A", "modalidad": "Media General", "lugar_nacimiento": "Caracas", "estado_nacimiento": "Distrito Capital"},
-        {"cedula": "V-30000003", "nombre": "Luisa", "apellido": "Cáceres", "numero_lista": 3, "grado": 1, "seccion": "B", "modalidad": "Media General", "lugar_nacimiento": "La Asunción", "estado_nacimiento": "Nueva Esparta"},
-        {"cedula": "V-30000004", "nombre": "Josefa", "apellido": "Camejo", "numero_lista": 4, "grado": 4, "seccion": "A", "modalidad": "Técnica", "lugar_nacimiento": "Coro", "estado_nacimiento": "Falcón"},
-        {"cedula": "V-30000005", "nombre": "Francisco", "apellido": "Miranda", "numero_lista": 5, "grado": 4, "seccion": "A", "modalidad": "Técnica", "lugar_nacimiento": "Caracas", "estado_nacimiento": "Distrito Capital"},
+        {"cedula": "V-30000001", "nombre": "Andrés", "apellido": "Bello", "numero_lista": 1, "grado": 1, "seccion": "A", "modalidad": "Media General", "lugar_nacimiento": "Caracas", "municipio": "Libertador", "estado_nacimiento": "Distrito Capital", "status": "presente"},
+        {"cedula": "V-30000002", "nombre": "Simón", "apellido": "Rodríguez", "numero_lista": 2, "grado": 1, "seccion": "A", "modalidad": "Media General", "lugar_nacimiento": "Caracas", "municipio": "Libertador", "estado_nacimiento": "Distrito Capital", "status": "presente"},
+        {"cedula": "V-30000003", "nombre": "Luisa", "apellido": "Cáceres", "numero_lista": 3, "grado": 1, "seccion": "B", "modalidad": "Media General", "lugar_nacimiento": "La Asunción", "municipio": "Arismendi", "estado_nacimiento": "Nueva Esparta", "status": "retirado"},
+        {"cedula": "V-30000004", "nombre": "Josefa", "apellido": "Camejo", "numero_lista": 4, "grado": 4, "seccion": "A", "modalidad": "Técnica", "lugar_nacimiento": "Coro", "municipio": "Miranda", "estado_nacimiento": "Falcón", "status": "egresado"},
+        {"cedula": "V-30000005", "nombre": "Francisco", "apellido": "Miranda", "numero_lista": 5, "grado": 4, "seccion": "A", "modalidad": "Técnica", "lugar_nacimiento": "Caracas", "municipio": "Sucre", "estado_nacimiento": "Miranda", "status": "presente"},
     ]
     
     alumnos_creados = []
@@ -96,12 +96,15 @@ def seed_system():
         data["codigo"] = f"AL-{data['cedula']}"
         al = safe_post(f"{BASE_URL}/alumnos/", data, headers)
         if al: 
-            alumnos_creados.append({"id": al["id"], "grado": data["grado"]})
+            alumnos_creados.append({"id": al["id"], "grado": data["grado"], "status": al["status"]})
     print(f"✅ {len(alumnos_creados)} Alumnos inscritos.")
 
     # 6. Cargar Notas
-    print("⏳ Cargando notas para todos los lapsos...")
+    print("⏳ Cargando notas solo para alumnos ACTIVOS (presente)...")
     for al_obj in alumnos_creados:
+        if al_obj["status"] != "presente":
+            continue
+            
         al_id = al_obj["id"]
         grado = al_obj["grado"]
         materias_a_cargar = materias_ids_1ro if grado == 1 else materias_ids_4to

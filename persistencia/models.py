@@ -33,6 +33,7 @@ class Alumno(Base):
     fecha_nacimiento = Column(Date, nullable=True)
     lugar_nacimiento = Column(String, nullable=True)
     estado_nacimiento = Column(String, nullable=True)
+    municipio = Column(String, nullable=True)
     nombre_representante = Column(String, nullable=True)
     correo_representante = Column(String, nullable=True)
     direccion_representante = Column(String, nullable=True)
@@ -42,6 +43,7 @@ class Alumno(Base):
     numero_lista = Column(Integer, nullable=True)
     modalidad = Column(String, default="Media General")
     telefono_representante = Column(String, nullable=True)
+    status = Column(String, default="presente") # presente, egresado, retirado
 
     boletas = relationship("Boleta", back_populates="alumno", cascade="all, delete-orphan")
     calificaciones = relationship("Calificacion", back_populates="alumno", cascade="all, delete-orphan")

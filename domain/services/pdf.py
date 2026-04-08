@@ -1,5 +1,6 @@
 import os
 from io import BytesIO
+from typing import List
 from jinja2 import Environment, FileSystemLoader
 from xhtml2pdf import pisa
 from domain.schemas.boleta import BoletaResponse
@@ -47,5 +48,34 @@ class PDFService:
             raise Exception("Error al generar el PDF")
 
         # 5. Volver al inicio del buffer para que pueda ser leído
+        pdf_buffer.seek(0)
+        return pdf_buffer
+
+    def generar_bulk_boletas_pdf(self, boletas: List[BoletaResponse]) -> BytesIO:
+        """
+        Genera un PDF con múltiples boletas (una por página).
+        """
+        # 1. Cargar plantilla bulk
+        template = self.jinja_env.get_template("bulk_boletas_pdf.html")
+
+        # 2. Renderizar HTML con los datos
+        import sys
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+            template_dir = os.path.join(base_path, "domain", "templates")
+        else:
+            template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+            
+        html_content = template.render(boletas=boletas, base_path=template_dir)
+
+        # 3. Crear buffer
+        pdf_buffer = BytesIO()
+
+        # 4. Convertir a PDF
+        pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+
+        if pisa_status.err:
+            raise Exception("Error al generar el PDF masivo")
+
         pdf_buffer.seek(0)
         return pdf_buffer
